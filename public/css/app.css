@@ -1,0 +1,282 @@
+body {
+  background-image: linear-gradient(to bottom, #4b4b4b, #000000);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+* {
+  font-family: 'Poppins', sans-serif;
+}
+
+.top-left-corner {
+  position: absolute;
+  left: 30px;
+  top: 30px;
+}
+
+.top-right-corner {
+  position: absolute;
+  right: 30px;
+  top: 30px;
+}
+
+.bottom-right-corner {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+}
+
+.blue-btn {
+  padding: 20px 40px;
+  border: 3px solid rgb(176, 176, 255);
+  border-radius: 12px;
+  text-decoration: none;
+  color: white;
+  background: rgb(30, 30, 218);
+  transition: 0.5s;
+
+  font-size: x-large;
+}
+
+.blue-btn:hover {
+  background: rgb(14, 14, 95);
+  transition: 0.5s;
+}
+
+.blue-btn:active {
+  box-shadow: 0px 0px 60px rgb(108, 108, 156) inset;
+  transition: 0s;
+}
+
+.green-btn {
+  padding: 20px 40px;
+  border: 3px solid rgb(176, 255, 180);
+  border-radius: 12px;
+  text-decoration: none;
+  color: white;
+  background: rgb(11, 156, 6);
+  transition: 0.5s;
+
+  font-size: x-large;
+}
+
+.green-btn:hover {
+  background: rgb(28, 95, 14);
+  transition: 0.5s;
+}
+
+.green-btn:active {
+  box-shadow: 0px 0px 60px rgb(176, 255, 180) inset;
+  transition: 0s;
+}
+
+.red-btn {
+  padding: 20px 40px;
+  border: 3px solid rgb(255, 176, 176);
+  border-radius: 12px;
+  text-decoration: none;
+  color: rgb(0, 0, 0);
+  background: rgb(218, 30, 30);
+  transition: 0.5s;
+
+  font-size: x-large;
+}
+
+.red-btn:hover {
+  background: rgb(95, 14, 14);
+  transition: 0.5s;
+}
+
+.red-btn:active {
+  box-shadow: 0px 0px 60px rgb(156, 108, 108) inset;
+  transition: 0s;
+}
+
+.center {
+  display: table;
+  margin: 0 auto;
+}
+
+.title {
+  text-align: center;
+  font-size: 50px;
+  word-spacing: 2px;
+  font-variant: small-caps;
+  color: rgb(78, 183, 243);
+}
+
+.mb4 {
+  margin-bottom: 40px;
+}
+
+.mt2 {
+  margin-top: 20px;
+}
+
+.simple-link {
+  color: rgb(232, 255, 255);
+  text-decoration: none;
+  transition: 0.5s;
+}
+
+.simple-link:hover {
+  color: rgb(119, 167, 167);
+  transition: 0.7s;
+}
+
+.simple-link:active {
+  color: rgb(63, 194, 194);
+}
+
+.error-msg {
+  color: red;
+  text-shadow: 0px 0px 20px white;
+}
+
+.line {
+  display: block;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  width: 85%;
+  height: 3px;
+  border-radius: 26px;
+  background-color: #3a96ff36;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.content {
+  margin-top: 5%;
+}
+
+/*----------------------- Home Page -----------------------*/
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20%;
+}
+
+.main-img {
+  margin-top: 190px;
+}
+
+/*---------------------------------------------------------*/
+
+/*----------------------- Auth Form -----------------------*/
+
+.auth-input {
+  font-size: larger;
+  width: 50%;
+  padding: 12px 10px;
+
+  color: azure;
+  background: none;
+  border: none;
+  border-left: 2px solid #5e76fa;
+  border-bottom: 2px solid #5e76fa;
+  transition: 0.5s;
+  border-radius: 12px;
+}
+
+auth-input:focus {
+  transition: 1s;
+  border-left: 2px solid #2a3572;
+  border-bottom: 2px solid #2a3572;
+}
+
+/*---------------------------------------------------------*/
+
+/*----------------------- Quiz Form -----------------------*/
+
+.checkboxes-wrapper {
+  width: 70%;
+  margin: 20px auto;
+  margin-top: 30px;
+}
+
+.checkbox {
+  font-size: 24px;
+  background-color: #efefef;
+  border-radius: 4px;
+  border: 1px solid #d0d0d0;
+  margin-bottom: 20px;
+}
+
+.checkbox:hover {
+  background: #3039bb;
+  color: white;
+}
+
+.checkbox label span {
+  text-align: center;
+  padding: 3px 0;
+  display: block;
+}
+
+.checkbox label input {
+  display: none;
+}
+
+.checkbox label input:checked + span {
+  background-color: rgb(19, 4, 73);
+  color: white;
+}
+
+/*---------------------------------------------------------*/
+
+/*------------------------ Results ------------------------*/
+
+.results-wrapper {
+  display: inline-flex;
+  padding: 20px 30px;
+  border-radius: 15px;
+  box-shadow: 0px 0px 23px 33px #80808069;
+  background-color: #80808069;
+
+  margin-top: 120px;
+}
+
+.result {
+  margin: 0px 35px;
+  min-width: 200px;
+  background-color: #0000002c;
+  padding: 3px 60px;
+  border-radius: 20px;
+  box-shadow: 0px 0px 20px #00000050;
+  color: rgb(162, 212, 255);
+}
+
+/*---------------------------------------------------------*/
+
+/*------------------------ Profile ------------------------*/
+
+.profile-header {
+  margin: 50px 0 60px 40px;
+  display: flex;
+}
+
+.profile-name {
+  font-variant: inherit;
+  font-size: 70px;
+  margin: 0;
+}
+
+.profile-email {
+  font-variant: inherit;
+  margin: 0;
+  margin-left: 40px;
+  margin-top: 25px;
+  font-size: 40px;
+  color: rgba(34, 113, 158, 0.808);
+}
+
+.profile-xp {
+  font-variant: inherit;
+  font-size: 50px;
+  margin: 0;
+}
+
+/*---------------------------------------------------------*/ ;
