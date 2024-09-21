@@ -37,10 +37,10 @@ services:
     image: mysql:5.7  # You can update this to another MySQL version if needed
     container_name: mister_quiz-mysql  # Custom container name
     environment:
-      MYSQL_ROOT_PASSWORD: root  # Set the root password
-      MYSQL_DATABASE: mister_quiz  # Name of the database
-      MYSQL_USER: root  # User for the DB
-      MYSQL_PASSWORD: root  # Password for the DB user
+    MYSQL_ROOT_PASSWORD: root  # Set the root password
+    MYSQL_DATABASE: mister_quiz  # Name of the database
+    MYSQL_USER: appuser  # Create a regular user
+    MYSQL_PASSWORD: userpass  # Password for the DB user
     volumes:
       - dbdata:/var/lib/mysql  # Persist the database data
     networks:
