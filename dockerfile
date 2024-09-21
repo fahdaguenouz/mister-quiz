@@ -12,24 +12,23 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     git \
-    curl
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql gd bcmath
+    curl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo pdo_mysql bcmath
 
 # Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy project files to container (assuming your app files are in the current directory)
+# Copy project files to container
 COPY . .
 
-# Set folder permissions for Laravel directories (adjust if needed)
+# Set folder permissions for Laravel directories
 RUN chown -R www-data:www-data /var/www/mister_quiz/storage /var/www/mister_quiz/bootstrap/cache
 
-# Install Composer dependencies (for production, no dev dependencies)
+# Install Composer dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Expose the PHP-FPM port (9000 is the default)
+# Expose the PHP-FPM port
 EXPOSE 9000
 
 # Start the PHP-FPM server
