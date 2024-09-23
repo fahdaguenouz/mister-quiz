@@ -59,6 +59,19 @@ services:
       - ./:/app  # Mount your app directory
     networks:
       - mister_quiz-network
+        # phpMyAdmin service
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: mister_quiz-phpmyadmin
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: userpass  # Same as your MySQL root password
+    ports:
+      - "8080:80"  # Access phpMyAdmin on http://localhost:8080
+    depends_on:
+      - db
+    networks:
+      - mister_quiz-network
 
 # Define the network
 networks:

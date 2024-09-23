@@ -25,8 +25,8 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  *
- * @method Request  getRequest()  A Request instance
- * @method Response getResponse() A Response instance
+ * @method Request  getRequest()
+ * @method Response getResponse()
  */
 class HttpKernelBrowser extends AbstractBrowser
 {
@@ -36,7 +36,7 @@ class HttpKernelBrowser extends AbstractBrowser
     /**
      * @param array $server The server parameters (equivalent of $_SERVER)
      */
-    public function __construct(HttpKernelInterface $kernel, array $server = [], History $history = null, CookieJar $cookieJar = null)
+    public function __construct(HttpKernelInterface $kernel, array $server = [], ?History $history = null, ?CookieJar $cookieJar = null)
     {
         // These class properties must be set before calling the parent constructor, as it may depend on it.
         $this->kernel = $kernel;
@@ -54,13 +54,15 @@ class HttpKernelBrowser extends AbstractBrowser
     }
 
     /**
-     * Makes a request.
+     * {@inheritdoc}
      *
-     * @return Response A Response instance
+     * @param Request $request
+     *
+     * @return Response
      */
-    protected function doRequest($request)
+    protected function doRequest(object $request)
     {
-        $response = $this->kernel->handle($request, HttpKernelInterface::MASTER_REQUEST, $this->catchExceptions);
+        $response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, $this->catchExceptions);
 
         if ($this->kernel instanceof TerminableInterface) {
             $this->kernel->terminate($request, $response);
@@ -70,11 +72,13 @@ class HttpKernelBrowser extends AbstractBrowser
     }
 
     /**
-     * Returns the script to execute when the request must be insulated.
+     * {@inheritdoc}
+     *
+     * @param Request $request
      *
      * @return string
      */
-    protected function getScript($request)
+    protected function getScript(object $request)
     {
         $kernel = var_export(serialize($this->kernel), true);
         $request = var_export(serialize($request), true);
@@ -124,9 +128,9 @@ EOF;
     }
 
     /**
-     * Converts the BrowserKit request to a HttpKernel request.
+     * {@inheritdoc}
      *
-     * @return Request A Request instance
+     * @return Request
      */
     protected function filterRequest(DomRequest $request)
     {
@@ -153,7 +157,7 @@ EOF;
      *
      * @see UploadedFile
      *
-     * @return array An array with all uploaded files marked as already moved
+     * @return array
      */
     protected function filterFiles(array $files)
     {
@@ -186,11 +190,13 @@ EOF;
     }
 
     /**
-     * Converts the HttpKernel response to a BrowserKit response.
+     * {@inheritdoc}
      *
-     * @return DomResponse A DomResponse instance
+     * @param Response $response
+     *
+     * @return DomResponse
      */
-    protected function filterResponse($response)
+    protected function filterResponse(object $response)
     {
         // this is needed to support StreamedResponse
         ob_start();

@@ -1,3 +1,68 @@
+Unreleased
+==========
+
+1.19.0
+======
+
+**Added:**
+
+* Allow sebastian/comparator and sebastian/recursion-context 6
+
+1.18.0 / 2023-12-07
+===================
+
+* [added] Add support for PHP 8.3 [@rajeshreeputra]
+* [changed] Improve the error when using return types that Prophecy does not support for mocking [@stof]
+* [changed] Add more precise type for static analysis [@stof]
+* [fixed] Error when comparing object arguments with integers [@lucassabreu]
+* [changed] Add PHP 8.2 to test matrix [@Jean85]
+* [Added] Allow sebastian/comparator and sebastian/recursion-context 5, and phpunit/phpunit 10 [@Jean85]
+* [docs] Switch travis status badge to GHA one [@michalbundyra]
+
+1.17.0 / 2023-02-02
+===================
+
+* [added] Add generic types for ProphecyInterface and ObjectProphecy [@stof]
+* [added] Add the conditional return type for `ObjectProphecy::getMethodProphecies` [@stof]
+* [added] Add support for doctrine/instantiator 2.0 [@stof]
+* [added] Add the ability to customize the __toString representation of a CallbackToken [@ian-zunderdorp]
+* [changed] Remove support for instantiating a MethodProphecy without its arguments [@stof]
+* [deprecated] Deprecate `\Prophecy\Comparator\Factory` as `sebastian/comparator` v5 makes it parent class final [@stof]
+
+1.16.0 / 2022/11/29
+===================
+
+* [added] Allow installing with PHP 8.2 [@gquemener]
+* [added] Use shorter object IDs for object comparison [@TysonAndre]
+* [added] Support standalone false,true and null types [@kschatzle]
+* [added] Support doubling readonly classes [@gquemener]
+* [fixed] Remove workarounds for unsupported HHVM [@TysonAndre]
+* [fixed] Clear error message when doubling DNF types [@kschatzle]
+
+
+1.15.0 / 2021/12/08
+===================
+
+* [added] Support for the `static` return type [@denis-rolling-scopes]
+* [fixed] Add return types for Comparator implementations to avoid deprecation warnings from Symfony's DebugClassLoader [@stof]
+
+1.14.0 / 2021/09/16
+===================
+
+* [added] Support for static closures in will and should [@ntzm]
+* [added] Allow install on PHP 8.1 (with test suite fixes) [@javer]
+* [added] Support for the 'never' return type [@ciaranmcnulty]
+* [fixed] Better error message when doubling intersection return types [@ciaranmcnulty]
+
+1.13.0 / 2021/03/17
+===================
+
+* [added] willYield can now specify a return value [@camilledejoye]
+* [added] Prophecy exception interfaces are explicitly Throwable [@ciaranmcnulty]
+* [fixed] Argument::in() and notIn() now marked as static [@tyteen4a03]
+* [fixed] Can now double unions containing false [@ciaranmcnulty]
+* [fixed] Virtual magic methods with arguments are now doublable in PHP 8 [@ciaranmcnulty]
+
 1.12.2 / 2020/12/19
 ===================
 

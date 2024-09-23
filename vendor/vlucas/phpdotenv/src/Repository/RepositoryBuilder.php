@@ -21,8 +21,6 @@ final class RepositoryBuilder
 {
     /**
      * The set of default adapters.
-     *
-     * @var string[]
      */
     private const DEFAULT_ADAPTERS = [
         ServerConstAdapter::class,
@@ -67,7 +65,7 @@ final class RepositoryBuilder
      *
      * @return void
      */
-    private function __construct(array $readers = [], array $writers = [], bool $immutable = false, array $allowList = null)
+    private function __construct(array $readers = [], array $writers = [], bool $immutable = false, ?array $allowList = null)
     {
         $this->readers = $readers;
         $this->writers = $writers;
@@ -113,7 +111,7 @@ final class RepositoryBuilder
     }
 
     /**
-     * Determine if the given name if of an adapaterclass.
+     * Determine if the given name if of an adapterclass.
      *
      * @param string $name
      *
@@ -246,7 +244,7 @@ final class RepositoryBuilder
      *
      * @return \Dotenv\Repository\RepositoryBuilder
      */
-    public function allowList(array $allowList = null)
+    public function allowList(?array $allowList = null)
     {
         return new self($this->readers, $this->writers, $this->immutable, $allowList);
     }

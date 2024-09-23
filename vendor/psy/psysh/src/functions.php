@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2020 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,21 +13,20 @@ namespace Psy;
 
 use Psy\ExecutionLoop\ProcessForker;
 use Psy\VersionUpdater\GitHubChecker;
+use Psy\VersionUpdater\Installer;
+use Psy\VersionUpdater\SelfUpdate;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
-use XdgBaseDir\Xdg;
 
 if (!\function_exists('Psy\\sh')) {
     /**
      * Command to return the eval-able code to startup PsySH.
      *
      *     eval(\Psy\sh());
-     *
-     * @return string
      */
-    function sh()
+    function sh(): string
     {
         if (\version_compare(\PHP_VERSION, '8.0', '<')) {
             return '\extract(\Psy\debug(\get_defined_vars(), isset($this) ? $this : @\get_called_class()));';
@@ -91,7 +90,7 @@ if (!\function_exists('Psy\\debug')) {
      *
      * @return array Scope variables from the debugger session
      */
-    function debug(array $vars = [], $bindTo = null)
+    function debug(array $vars = [], $bindTo = null): array
     {
         echo \PHP_EOL;
 
@@ -129,7 +128,7 @@ if (!\function_exists('Psy\\info')) {
      *
      * @return array|null
      */
-    function info(Configuration $config = null)
+    function info(?Configuration $config = null)
     {
         static $lastConfig;
         if ($config !== null) {
@@ -138,27 +137,38 @@ if (!\function_exists('Psy\\info')) {
             return;
         }
 
-        $xdg = new Xdg();
-        $home = \rtrim(\str_replace('\\', '/', $xdg->getHomeDir()), '/');
-        $homePattern = '#^'.\preg_quote($home, '#').'/#';
-
-        $prettyPath = function ($path) use ($homePattern) {
-            if (\is_string($path)) {
-                return \preg_replace($homePattern, '~/', $path);
-            } else {
-                return $path;
-            }
+        $prettyPath = function ($path) {
+            return $path;
         };
+
+        $homeDir = (new ConfigPaths())->homeDir();
+        if ($homeDir && $homeDir = \rtrim($homeDir, '/')) {
+            $homePattern = '#^'.\preg_quote($homeDir, '#').'/#';
+            $prettyPath = function ($path) use ($homePattern) {
+                if (\is_string($path)) {
+                    return \preg_replace($homePattern, '~/', $path);
+                } else {
+                    return $path;
+                }
+            };
+        }
 
         $config = $lastConfig ?: new Configuration();
         $configEnv = (isset($_SERVER['PSYSH_CONFIG']) && $_SERVER['PSYSH_CONFIG']) ? $_SERVER['PSYSH_CONFIG'] : false;
+        if ($configEnv === false && \PHP_SAPI === 'cli-server') {
+            $configEnv = \getenv('PSYSH_CONFIG');
+        }
+
+        $shellInfo = [
+            'PsySH version' => Shell::VERSION,
+        ];
 
         $core = [
-            'PsySH version'       => Shell::VERSION,
             'PHP version'         => \PHP_VERSION,
             'OS'                  => \PHP_OS,
             'default includes'    => $config->getDefaultIncludes(),
             'require semicolons'  => $config->requireSemicolons(),
+            'strict types'        => $config->strictTypes(),
             'error logging level' => $config->errorLoggingLevel(),
             'config file'         => [
                 'default config file' => $prettyPath($config->getConfigFile()),
@@ -177,7 +187,7 @@ if (!\function_exists('Psy\\info')) {
         try {
             $updateAvailable = !$checker->isLatest();
             $latest = $checker->getLatest();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
 
         $updates = [
@@ -219,6 +229,17 @@ if (!\function_exists('Psy\\info')) {
             'color mode'       => $config->colorMode(),
             'output decorated' => $config->getOutputDecorated(),
             'output verbosity' => $config->verbosity(),
+            'output pager'     => $config->getPager(),
+        ];
+
+        $theme = $config->theme();
+        // @todo show styles (but only if they're different than default?)
+        $output['theme'] = [
+            'compact'      => $theme->compact(),
+            'prompt'       => $theme->prompt(),
+            'bufferPrompt' => $theme->bufferPrompt(),
+            'replayPrompt' => $theme->replayPrompt(),
+            'returnValue'  => $theme->returnValue(),
         ];
 
         $pcntl = [
@@ -281,16 +302,37 @@ if (!\function_exists('Psy\\info')) {
         ];
 
         // Shenanigans, but totally justified.
-        if ($shell = Sudo::fetchProperty($config, 'shell')) {
-            $core['loop listeners'] = \array_map('get_class', Sudo::fetchProperty($shell, 'loopListeners'));
-            $core['commands'] = \array_map('get_class', $shell->all());
+        try {
+            if ($shell = Sudo::fetchProperty($config, 'shell')) {
+                $shellClass = \get_class($shell);
+                if ($shellClass !== 'Psy\\Shell') {
+                    $shellInfo = [
+                        'PsySH version' => $shell::VERSION,
+                        'Shell class'   => $shellClass,
+                    ];
+                }
 
-            $autocomplete['custom matchers'] = \array_map('get_class', Sudo::fetchProperty($shell, 'matchers'));
+                try {
+                    $core['loop listeners'] = \array_map('get_class', Sudo::fetchProperty($shell, 'loopListeners'));
+                } catch (\ReflectionException $e) {
+                    // shrug
+                }
+
+                $core['commands'] = \array_map('get_class', $shell->all());
+
+                try {
+                    $autocomplete['custom matchers'] = \array_map('get_class', Sudo::fetchProperty($shell, 'matchers'));
+                } catch (\ReflectionException $e) {
+                    // shrug
+                }
+            }
+        } catch (\ReflectionException $e) {
+            // shrug
         }
 
         // @todo Show Presenter / custom casters.
 
-        return \array_merge($core, \compact('updates', 'pcntl', 'input', 'readline', 'output', 'history', 'docs', 'autocomplete'));
+        return \array_merge($shellInfo, $core, \compact('updates', 'pcntl', 'input', 'readline', 'output', 'history', 'docs', 'autocomplete'));
     }
 }
 
@@ -300,22 +342,17 @@ if (!\function_exists('Psy\\bin')) {
      *
      * @return \Closure
      */
-    function bin()
+    function bin(): \Closure
     {
         return function () {
             if (!isset($_SERVER['PSYSH_IGNORE_ENV']) || !$_SERVER['PSYSH_IGNORE_ENV']) {
-                if (\defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID < 31800) {
-                    \fwrite(\STDERR, 'HHVM 3.18 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
+                if (\defined('HHVM_VERSION_ID')) {
+                    \fwrite(\STDERR, 'PsySH v0.11 and higher does not support HHVM. Install an older version, or set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
 
-                if (\defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID > 39999) {
-                    \fwrite(\STDERR, 'HHVM 4 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
-                    exit(1);
-                }
-
-                if (\PHP_VERSION_ID < 50509) {
-                    \fwrite(\STDERR, 'PHP 5.5.9 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
+                if (\PHP_VERSION_ID < 70400) {
+                    \fwrite(\STDERR, 'PHP 7.4.0 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
 
@@ -336,12 +373,14 @@ if (!\function_exists('Psy\\bin')) {
             }
 
             $usageException = null;
+            $shellIsPhar = Shell::isPhar();
 
             $input = new ArgvInput();
             try {
                 $input->bind(new InputDefinition(\array_merge(Configuration::getInputOptions(), [
                     new InputOption('help', 'h', InputOption::VALUE_NONE),
                     new InputOption('version', 'V', InputOption::VALUE_NONE),
+                    new InputOption('self-update', 'u', InputOption::VALUE_NONE),
 
                     new InputArgument('include', InputArgument::IS_ARRAY),
                 ])));
@@ -356,7 +395,7 @@ if (!\function_exists('Psy\\bin')) {
             }
 
             // Handle --help
-            if ($usageException !== null || $input->getOption('help')) {
+            if (!isset($config) || $usageException !== null || $input->getOption('help')) {
                 if ($usageException !== null) {
                     echo $usageException->getMessage().\PHP_EOL.\PHP_EOL;
                 }
@@ -376,16 +415,27 @@ Options:
   -c, --config FILE     Use an alternate PsySH config file location.
       --cwd PATH        Use an alternate working directory.
   -V, --version         Display the PsySH version.
+
+EOL;
+                if ($shellIsPhar) {
+                    echo <<<EOL
+  -u, --self-update     Install a newer version if available.
+
+EOL;
+                }
+                echo <<<EOL
       --color           Force colors in output.
       --no-color        Disable colors in output.
   -i, --interactive     Force PsySH to run in interactive mode.
   -n, --no-interactive  Run PsySH without interactive input. Requires input from stdin.
   -r, --raw-output      Print var_export-style return values (for non-interactive input)
+      --compact         Run PsySH with compact output.
   -q, --quiet           Shhhhhh.
   -v|vv|vvv, --verbose  Increase the verbosity of messages.
       --yolo            Run PsySH without input validation. You don't want this.
 
 EOL;
+
                 exit($usageException === null ? 0 : 1);
             }
 
@@ -393,6 +443,17 @@ EOL;
             if ($input->getOption('version')) {
                 echo Shell::getVersionHeader($config->useUnicode()).\PHP_EOL;
                 exit(0);
+            }
+
+            // Handle --self-update
+            if ($input->getOption('self-update')) {
+                if (!$shellIsPhar) {
+                    \fwrite(\STDERR, 'The --self-update option can only be used with with a phar based install.'.\PHP_EOL);
+                    exit(1);
+                }
+                $selfUpdate = new SelfUpdate(new GitHubChecker(), new Installer());
+                $result = $selfUpdate->run($input, $config->getOutput());
+                exit($result);
             }
 
             $shell = new Shell($config);
@@ -403,7 +464,7 @@ EOL;
             try {
                 // And go!
                 $shell->run();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 \fwrite(\STDERR, $e->getMessage().\PHP_EOL);
 
                 // @todo this triggers the "exited unexpectedly" logic in the

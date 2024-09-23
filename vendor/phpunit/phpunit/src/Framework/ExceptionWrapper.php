@@ -9,11 +9,13 @@
  */
 namespace PHPUnit\Framework;
 
+use const PHP_VERSION_ID;
 use function array_keys;
 use function get_class;
 use function spl_object_hash;
 use PHPUnit\Util\Filter;
 use Throwable;
+use WeakReference;
 
 /**
  * Wraps Exceptions thrown by code under test.
@@ -37,6 +39,11 @@ final class ExceptionWrapper extends Exception
      * @var null|ExceptionWrapper
      */
     protected $previous;
+
+    /**
+     * @var null|WeakReference<Throwable>
+     */
+    private $originalException;
 
     public function __construct(Throwable $t)
     {
@@ -107,16 +114,25 @@ final class ExceptionWrapper extends Exception
      *
      * Approach works both for var_dump() and var_export() and print_r().
      */
-    private function originalException(Throwable $exceptionToStore = null): ?Throwable
+    private function originalException(?Throwable $exceptionToStore = null): ?Throwable
     {
-        static $originalExceptions;
+        // drop once PHP 7.3 support is removed
+        if (PHP_VERSION_ID < 70400) {
+            static $originalExceptions;
 
-        $instanceId = spl_object_hash($this);
+            $instanceId = spl_object_hash($this);
 
-        if ($exceptionToStore) {
-            $originalExceptions[$instanceId] = $exceptionToStore;
+            if ($exceptionToStore) {
+                $originalExceptions[$instanceId] = $exceptionToStore;
+            }
+
+            return $originalExceptions[$instanceId] ?? null;
         }
 
-        return $originalExceptions[$instanceId] ?? null;
+        if ($exceptionToStore) {
+            $this->originalException = WeakReference::create($exceptionToStore);
+        }
+
+        return $this->originalException !== null ? $this->originalException->get() : null;
     }
 }

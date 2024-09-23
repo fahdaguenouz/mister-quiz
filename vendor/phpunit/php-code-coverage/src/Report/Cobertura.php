@@ -9,23 +9,27 @@
  */
 namespace SebastianBergmann\CodeCoverage\Report;
 
+use function basename;
 use function count;
 use function dirname;
 use function file_put_contents;
+use function preg_match;
 use function range;
+use function str_replace;
+use function strpos;
 use function time;
 use DOMImplementation;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
-use SebastianBergmann\CodeCoverage\Directory;
 use SebastianBergmann\CodeCoverage\Driver\WriteOperationFailedException;
 use SebastianBergmann\CodeCoverage\Node\File;
+use SebastianBergmann\CodeCoverage\Util\Filesystem;
 
 final class Cobertura
 {
     /**
      * @throws WriteOperationFailedException
      */
-    public function process(CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
+    public function process(CodeCoverage $coverage, ?string $target = null): string
     {
         $time = (string) time();
 
@@ -84,9 +88,8 @@ final class Cobertura
 
             $packageElement    = $document->createElement('package');
             $packageComplexity = 0;
-            $packageName       = $name ?? '';
 
-            $packageElement->setAttribute('name', $packageName);
+            $packageElement->setAttribute('name', str_replace($report->pathAsString() . DIRECTORY_SEPARATOR, '', $item->pathAsString()));
 
             $linesValid   = $item->numberOfExecutableLines();
             $linesCovered = $item->numberOfExecutedLines();
@@ -149,6 +152,8 @@ final class Cobertura
                         continue;
                     }
 
+                    preg_match("/\((.*?)\)/", $method['signature'], $signature);
+
                     $linesValid   = $method['executableLines'];
                     $linesCovered = $method['executedLines'];
                     $lineRate     = $linesValid === 0 ? 0 : ($linesCovered / $linesValid);
@@ -160,7 +165,7 @@ final class Cobertura
                     $methodElement = $document->createElement('method');
 
                     $methodElement->setAttribute('name', $methodName);
-                    $methodElement->setAttribute('signature', $method['signature']);
+                    $methodElement->setAttribute('signature', $signature[1]);
                     $methodElement->setAttribute('line-rate', (string) $lineRate);
                     $methodElement->setAttribute('branch-rate', (string) $branchRate);
                     $methodElement->setAttribute('complexity', (string) $method['ccn']);
@@ -189,7 +194,7 @@ final class Cobertura
                 }
             }
 
-            if ($report->numberOfFunctions() === 0) {
+            if ($item->numberOfFunctions() === 0) {
                 $packageElement->setAttribute('complexity', (string) $packageComplexity);
 
                 continue;
@@ -213,7 +218,7 @@ final class Cobertura
 
             $classElement->appendChild($classLinesElement);
 
-            $functions = $report->functions();
+            $functions = $item->functions();
 
             foreach ($functions as $functionName => $function) {
                 if ($function['executableLines'] === 0) {
@@ -290,7 +295,9 @@ final class Cobertura
         $buffer = $document->saveXML();
 
         if ($target !== null) {
-            Directory::create(dirname($target));
+            if (!strpos($target, '://') !== false) {
+                Filesystem::createDirectory(dirname($target));
+            }
 
             if (@file_put_contents($target, $buffer) === false) {
                 throw new WriteOperationFailedException($target);

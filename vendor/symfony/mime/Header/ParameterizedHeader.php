@@ -85,7 +85,7 @@ final class ParameterizedHeader extends UnstructuredHeader
      * This doesn't need to be overridden in theory, but it is for implementation
      * reasons to prevent potential breakage of attributes.
      */
-    protected function toTokens(string $string = null): array
+    protected function toTokens(?string $string = null): array
     {
         $tokens = parent::toTokens(parent::getBodyAsString());
 
@@ -123,6 +123,22 @@ final class ParameterizedHeader extends UnstructuredHeader
                 $maxValueLength = $this->getMaxLineLength() - \strlen($name.'*N*="";') - 1;
                 $firstLineOffset = \strlen($this->getCharset()."'".$this->getLanguage()."'");
             }
+
+            if (\in_array($name, ['name', 'filename'], true) && 'form-data' === $this->getValue() && 'content-disposition' === strtolower($this->getName()) && preg_match('//u', $value)) {
+                // WHATWG HTML living standard 4.10.21.8 2 specifies:
+                // For field names and filenames for file fields, the result of the
+                // encoding in the previous bullet point must be escaped by replacing
+                // any 0x0A (LF) bytes with the byte sequence `%0A`, 0x0D (CR) with `%0D`
+                // and 0x22 (") with `%22`.
+                // The user agent must not perform any other escapes.
+                $value = str_replace(['"', "\r", "\n"], ['%22', '%0D', '%0A'], $value);
+
+                if (\strlen($value) <= $maxValueLength) {
+                    return $name.'="'.$value.'"';
+                }
+
+                $value = $origValue;
+            }
         }
 
         // Encode if we need to
@@ -158,7 +174,7 @@ final class ParameterizedHeader extends UnstructuredHeader
      */
     private function getEndOfParameterValue(string $value, bool $encoded = false, bool $firstLine = false): string
     {
-        $forceHttpQuoting = 'content-disposition' === strtolower($this->getName()) && 'form-data' === $this->getValue();
+        $forceHttpQuoting = 'form-data' === $this->getValue() && 'content-disposition' === strtolower($this->getName());
         if ($forceHttpQuoting || !preg_match('/^'.self::TOKEN_REGEX.'$/D', $value)) {
             $value = '"'.$value.'"';
         }

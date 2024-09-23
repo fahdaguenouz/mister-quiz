@@ -28,7 +28,7 @@ class Person extends \Faker\Provider\Person
     protected static $firstNameMale = [
         'Adam', 'Aleš', 'Alois', 'Antonín', 'Bohumil', 'Bohuslav', 'Dagmar',
         'Dalibor', 'Daniel', 'David', 'Dominik', 'Dušan', 'Eduard', 'Emil',
-        'Filip', 'František', 'Ilona', 'Ivan', 'Ivo', 'Jakub', 'Jan', 'Ján',
+        'Filip', 'František', 'Igor', 'Ivan', 'Ivo', 'Jakub', 'Jan', 'Ján',
         'Jaromír', 'Jaroslav', 'Jindřich', 'Jiří', 'Josef', 'Jozef', 'Kamil',
         'Karel', 'Kryštof', 'Ladislav', 'Libor', 'Lubomír', 'Luboš', 'Luděk',
         'Ludvík', 'Lukáš', 'Marcel', 'Marek', 'Martin', 'Matěj', 'Matyáš',
@@ -37,7 +37,7 @@ class Person extends \Faker\Provider\Person
         'Radim', 'Radomír', 'René', 'Richard', 'Robert', 'Roman', 'Rostislav',
         'Rudolf', 'Stanislav', 'Šimon', 'Štefan', 'Štěpán', 'Tomáš',
         'Václav', 'Vasyl', 'Viktor', 'Vít', 'Vítězslav', 'Vladimír',
-        'Vladislav', 'Vlastimil', 'Vojtěch', 'Zbyněk', 'Zdeněk'
+        'Vladislav', 'Vlastimil', 'Vojtěch', 'Zbyněk', 'Zdeněk',
     ];
 
     protected static $firstNameFemale = [
@@ -53,7 +53,7 @@ class Person extends \Faker\Provider\Person
         'Radka', 'Renata', 'Renáta', 'Romana', 'Růžena', 'Simona', 'Soňa',
         'Stanislava', 'Šárka', 'Štěpánka', 'Tereza', 'Vendula', 'Věra',
         'Veronika', 'Vladimíra', 'Vlasta', 'Zdenka', 'Zdeňka', 'Zdeňka',
-        'Zuzana'
+        'Zuzana',
     ];
 
     protected static $lastNameMale = [
@@ -211,7 +211,7 @@ class Person extends \Faker\Provider\Person
         'Zdražil', 'Zedník', 'Zelenka', 'Zelený', 'Zelinka', 'Zemánek',
         'Zeman', 'Zezula', 'Zíka', 'Zikmund', 'Zima', 'Zlámal', 'Zoubek',
         'Zouhar', 'Zvěřina', 'Žáček', 'Žák', 'Žďárský', 'Žemlička',
-        'Žídek', 'Žižka', 'Žůrek'
+        'Žídek', 'Žižka', 'Žůrek',
     ];
 
     protected static $lastNameFemale = [
@@ -418,28 +418,28 @@ class Person extends \Faker\Provider\Person
         'Zelená', 'Zelinková', 'Zemánková', 'Zemanová', 'Zezulová',
         'Zíková', 'Zikmundová', 'Zimová', 'Zlámalová', 'Zoubková',
         'Zouharová', 'Zvěřinová', 'Žáčková', 'Žáková', 'Žďárská',
-        'Žemličková', 'Žídková', 'Žižková', 'Žůrková'
+        'Žemličková', 'Žídková', 'Žižková', 'Žůrková',
     ];
 
     protected static $title = [
-        'Bc.', 'Ing.', 'MUDr.', 'MVDr.', 'Mgr.', 'JUDr.', 'PhDr.', 'RNDr.', 'doc.', 'Dr.'
+        'Bc.', 'Ing.', 'MUDr.', 'MVDr.', 'Mgr.', 'JUDr.', 'PhDr.', 'RNDr.', 'doc.', 'Dr.',
     ];
 
     /**
-     * @return czech birth number
      * @param string|null $gender 'male', 'female' or null for any
-     * @param int $minAge minimal age of "generated person" in years
-     * @param int $maxAge maximal age of "generated person" in years
+     * @param int         $minAge minimal age of "generated person" in years
+     * @param int         $maxAge maximal age of "generated person" in years
+     *
+     * @return string czech birth number
      */
-
     public function birthNumber($gender = null, $minAge = 0, $maxAge = 100, $slashProbability = 50)
     {
         if ($gender === null) {
             $gender = $this->generator->boolean() ? static::GENDER_MALE : static::GENDER_FEMALE;
         }
 
-        $startTimestamp = strtotime("-${maxAge} year");
-        $endTimestamp = strtotime("-${minAge} year");
+        $startTimestamp = strtotime(sprintf('-%d year', $maxAge));
+        $endTimestamp = strtotime(sprintf('-%d year', $minAge));
         $randTimestamp = self::numberBetween($startTimestamp, $endTimestamp);
 
         $year = (int) (date('Y', $randTimestamp));
@@ -451,6 +451,7 @@ class Person extends \Faker\Provider\Person
         if ($gender == static::GENDER_FEMALE) {
             $month += 50;
         }
+
         // from year 2004 everyone has +20 to month when birth numbers in one day are exhausted
         if ($year >= 2004 && $this->generator->boolean(10)) {
             $month += 20;
@@ -461,6 +462,7 @@ class Person extends \Faker\Provider\Person
         // from year 1954 birth number includes CRC
         if ($year >= 1954) {
             $crc = intval($birthNumber, 10) % 11;
+
             if ($crc == 10) {
                 $crc = 0;
             }
@@ -508,13 +510,16 @@ class Person extends \Faker\Provider\Person
 
     /**
      * @param string|null $gender 'male', 'female' or null for any
+     *
      * @example 'Albrecht'
      */
     public function lastName($gender = null)
     {
         if ($gender === static::GENDER_MALE) {
             return static::lastNameMale();
-        } elseif ($gender === static::GENDER_FEMALE) {
+        }
+
+        if ($gender === static::GENDER_FEMALE) {
             return static::lastNameFemale();
         }
 

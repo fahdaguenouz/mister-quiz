@@ -9,8 +9,11 @@
  */
 namespace PHPUnit\Util;
 
+use const PHP_MAJOR_VERSION;
+use const PHP_MINOR_VERSION;
 use function array_keys;
 use function array_reverse;
+use function array_shift;
 use function defined;
 use function get_defined_constants;
 use function get_included_files;
@@ -23,6 +26,8 @@ use function preg_match;
 use function serialize;
 use function sprintf;
 use function strpos;
+use function strtr;
+use function substr;
 use function var_export;
 use Closure;
 
@@ -42,6 +47,79 @@ final class GlobalState
         '_SERVER',
         '_FILES',
         '_REQUEST',
+    ];
+
+    /**
+     * @psalm-var array<string, array<string, true>>
+     */
+    private const DEPRECATED_INI_SETTINGS = [
+        '7.3' => [
+            'iconv.input_encoding'       => true,
+            'iconv.output_encoding'      => true,
+            'iconv.internal_encoding'    => true,
+            'mbstring.func_overload'     => true,
+            'mbstring.http_input'        => true,
+            'mbstring.http_output'       => true,
+            'mbstring.internal_encoding' => true,
+            'string.strip_tags'          => true,
+        ],
+
+        '7.4' => [
+            'iconv.input_encoding'       => true,
+            'iconv.output_encoding'      => true,
+            'iconv.internal_encoding'    => true,
+            'mbstring.func_overload'     => true,
+            'mbstring.http_input'        => true,
+            'mbstring.http_output'       => true,
+            'mbstring.internal_encoding' => true,
+            'pdo_odbc.db2_instance_name' => true,
+            'string.strip_tags'          => true,
+        ],
+
+        '8.0' => [
+            'iconv.input_encoding'       => true,
+            'iconv.output_encoding'      => true,
+            'iconv.internal_encoding'    => true,
+            'mbstring.http_input'        => true,
+            'mbstring.http_output'       => true,
+            'mbstring.internal_encoding' => true,
+        ],
+
+        '8.1' => [
+            'auto_detect_line_endings'     => true,
+            'filter.default'               => true,
+            'iconv.input_encoding'         => true,
+            'iconv.output_encoding'        => true,
+            'iconv.internal_encoding'      => true,
+            'mbstring.http_input'          => true,
+            'mbstring.http_output'         => true,
+            'mbstring.internal_encoding'   => true,
+            'oci8.old_oci_close_semantics' => true,
+        ],
+
+        '8.2' => [
+            'auto_detect_line_endings'     => true,
+            'filter.default'               => true,
+            'iconv.input_encoding'         => true,
+            'iconv.output_encoding'        => true,
+            'iconv.internal_encoding'      => true,
+            'mbstring.http_input'          => true,
+            'mbstring.http_output'         => true,
+            'mbstring.internal_encoding'   => true,
+            'oci8.old_oci_close_semantics' => true,
+        ],
+
+        '8.3' => [
+            'auto_detect_line_endings'     => true,
+            'filter.default'               => true,
+            'iconv.input_encoding'         => true,
+            'iconv.output_encoding'        => true,
+            'iconv.internal_encoding'      => true,
+            'mbstring.http_input'          => true,
+            'mbstring.http_output'         => true,
+            'mbstring.internal_encoding'   => true,
+            'oci8.old_oci_close_semantics' => true,
+        ],
     ];
 
     /**
@@ -68,7 +146,12 @@ final class GlobalState
         }
 
         // Do not process bootstrap script
-        unset($files[0]);
+        array_shift($files);
+
+        // If bootstrap script was a Composer bin proxy, skip the second entry as well
+        if (substr(strtr($files[0], '\\', '/'), -24) === '/phpunit/phpunit/phpunit') {
+            array_shift($files);
+        }
 
         foreach (array_reverse($files) as $file) {
             if (!empty($GLOBALS['__PHPUNIT_ISOLATION_EXCLUDE_LIST']) &&
@@ -98,10 +181,14 @@ final class GlobalState
         $result = '';
 
         foreach (ini_get_all(null, false) as $key => $value) {
+            if (self::isIniSettingDeprecated($key)) {
+                continue;
+            }
+
             $result .= sprintf(
                 '@ini_set(%s, %s);' . "\n",
                 self::exportVariable($key),
-                self::exportVariable((string) $value)
+                self::exportVariable((string) $value),
             );
         }
 
@@ -119,7 +206,7 @@ final class GlobalState
                     'if (!defined(\'%s\')) define(\'%s\', %s);' . "\n",
                     $name,
                     $name,
-                    self::exportVariable($value)
+                    self::exportVariable($value),
                 );
             }
         }
@@ -142,7 +229,7 @@ final class GlobalState
                         '$GLOBALS[\'%s\'][\'%s\'] = %s;' . "\n",
                         $superGlobalArray,
                         $key,
-                        self::exportVariable($GLOBALS[$superGlobalArray][$key])
+                        self::exportVariable($GLOBALS[$superGlobalArray][$key]),
                     );
                 }
             }
@@ -156,7 +243,7 @@ final class GlobalState
                 $result .= sprintf(
                     '$GLOBALS[\'%s\'] = %s;' . "\n",
                     $key,
-                    self::exportVariable($GLOBALS[$key])
+                    self::exportVariable($GLOBALS[$key]),
                 );
             }
         }
@@ -191,5 +278,10 @@ final class GlobalState
         }
 
         return $result;
+    }
+
+    private static function isIniSettingDeprecated(string $iniSetting): bool
+    {
+        return isset(self::DEPRECATED_INI_SETTINGS[PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION][$iniSetting]);
     }
 }

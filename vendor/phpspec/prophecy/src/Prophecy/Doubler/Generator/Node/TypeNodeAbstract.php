@@ -6,7 +6,7 @@ use Prophecy\Exception\Doubler\DoubleException;
 
 abstract class TypeNodeAbstract
 {
-    /** @var string[] */
+    /** @var array<string, string> */
     protected $types = [];
 
     public function __construct(string ...$types)
@@ -21,14 +21,20 @@ abstract class TypeNodeAbstract
 
     public function canUseNullShorthand(): bool
     {
-        return isset($this->types['null']) && count($this->types) <= 2;
+        return isset($this->types['null']) && count($this->types) === 2;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getTypes(): array
     {
         return array_values($this->types);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getNonNullTypes(): array
     {
         $nonNullTypes = $this->types;
@@ -56,9 +62,12 @@ abstract class TypeNodeAbstract
 
             //  built in types
             case 'self':
+            case 'static':
             case 'array':
             case 'callable':
             case 'bool':
+            case 'false':
+            case 'true':
             case 'float':
             case 'int':
             case 'string':
@@ -74,10 +83,31 @@ abstract class TypeNodeAbstract
         }
     }
 
+    /**
+     * @return void
+     */
     protected function guardIsValidType()
     {
-        if ($this->types == ['null' => 'null']) {
-            throw new DoubleException('Argument type cannot be standalone null');
+        if (\PHP_VERSION_ID < 80200) {
+            if ($this->types == ['null' => 'null']) {
+                throw new DoubleException('Type cannot be standalone null');
+            }
+
+            if ($this->types == ['false' => 'false']) {
+                throw new DoubleException('Type cannot be standalone false');
+            }
+
+            if ($this->types == ['false' => 'false', 'null' => 'null']) {
+                throw new DoubleException('Type cannot be nullable false');
+            }
+
+            if ($this->types == ['true' => 'true']) {
+                throw new DoubleException('Type cannot be standalone true');
+            }
+
+            if ($this->types == ['true' => 'true', 'null' => 'null']) {
+                throw new DoubleException('Type cannot be nullable true');
+            }
         }
 
         if (\PHP_VERSION_ID >= 80000 && isset($this->types['mixed']) && count($this->types) !== 1) {

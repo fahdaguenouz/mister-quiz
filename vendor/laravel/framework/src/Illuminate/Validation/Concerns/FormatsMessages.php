@@ -20,6 +20,10 @@ trait FormatsMessages
      */
     protected function getMessage($attribute, $rule)
     {
+        $attributeWithPlaceholders = $attribute;
+
+        $attribute = $this->replacePlaceholderInString($attribute);
+
         $inlineMessage = $this->getInlineMessage($attribute, $rule);
 
         // First we will retrieve the custom message for the validation rule if one
@@ -46,7 +50,7 @@ trait FormatsMessages
         // specific error message for the type of attribute being validated such
         // as a number, file or string which all have different message types.
         elseif (in_array($rule, $this->sizeRules)) {
-            return $this->getSizeMessage($attribute, $rule);
+            return $this->getSizeMessage($attributeWithPlaceholders, $rule);
         }
 
         // Finally, if no developer specified messages have been set, and no other
@@ -54,7 +58,7 @@ trait FormatsMessages
         // messages out of the translator service for this validation rule.
         $key = "validation.{$lowerRule}";
 
-        if ($key != ($value = $this->translator->get($key))) {
+        if ($key !== ($value = $this->translator->get($key))) {
             return $value;
         }
 
@@ -336,7 +340,11 @@ trait FormatsMessages
             return $value ? 'true' : 'false';
         }
 
-        return $value;
+        if (is_null($value)) {
+            return 'empty';
+        }
+
+        return (string) $value;
     }
 
     /**

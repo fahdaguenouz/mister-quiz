@@ -20,14 +20,11 @@ namespace Ramsey\Collection;
  * this specific type of collection.
  *
  * @template T
- * @template-extends AbstractCollection<T>
+ * @extends AbstractCollection<T>
  */
 abstract class AbstractSet extends AbstractCollection
 {
-    /**
-     * @inheritDoc
-     */
-    public function add($element): bool
+    public function add(mixed $element): bool
     {
         if ($this->contains($element)) {
             return false;
@@ -36,10 +33,7 @@ abstract class AbstractSet extends AbstractCollection
         return parent::add($element);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         if ($this->contains($value)) {
             return;

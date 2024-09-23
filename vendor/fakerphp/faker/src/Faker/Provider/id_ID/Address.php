@@ -5,8 +5,9 @@ namespace Faker\Provider\id_ID;
 class Address extends \Faker\Provider\Address
 {
     /**
-     * @link http://bandung.go.id/images/download/daftarruasjalan.htm
-     **/
+     * @see http://bandung.go.id/images/download/daftarruasjalan.htm
+     * @see https://id.wikipedia.org/wiki/Kategori:Jalan_di_Jakarta
+     */
     protected static $street = [
         'Abang', 'Abdul', 'Abdul Muis', 'Abdul Rahmat', 'Abdul. Muis', 'Abdullah',
         'Aceh', 'Achmad', 'Achmad Yani', 'Acordion', 'Adisucipto',
@@ -17,7 +18,7 @@ class Address extends \Faker\Provider\Address
         'Bagonwoto ', 'Bah Jaya', 'Baha', 'Bahagia', 'Bahagia ',
         'Baiduri', 'Baik', 'Baing', 'Baja', 'Baja Raya',
         'Bak Air', 'Bak Mandi', 'Bakaru', 'Bakau', 'Bakau Griya Utama',
-        'Bakhita', 'Bakin', 'Bakit ', 'Bakti', 'Baladewa',
+        'Bakhita', 'Bakin', 'Bakit ', 'Bakti', 'Baladewa', 'Balikpapan',
         'Bambon', 'Bambu', 'Banal', 'Banceng Pondok', 'Banda',
         'Bank Dagang Negara', 'Bappenas', 'Bara', 'Bara Tambar', 'Baranang',
         'Baranang Siang', 'Baranang Siang Indah', 'Baranangsiang', 'Barasak', 'Barat',
@@ -32,7 +33,7 @@ class Address extends \Faker\Provider\Address
         'Flora', 'Flores', 'Gading', 'Gajah', 'Gajah Mada',
         'Gambang', 'Gardujati', 'Gatot Subroto', 'Gedebage Selatan', 'Gegerkalong Hilir',
         'Gotong Royong', 'Gremet', 'HOS. Cjokroaminoto (Pasirkaliki)', 'Haji', 'Halim',
-        'Hang', 'Hasanuddin', 'Honggowongso', 'Ikan', 'Imam',
+        'Hang', 'Hasanuddin', 'Hayam Wuruk', 'Honggowongso', 'Ikan', 'Imam',
         'Imam Bonjol', 'Industri', 'Ir. H. Juanda', 'Jagakarsa', 'Jakarta',
         'Jaksa', 'Jambu', 'Jamika', 'Jayawijaya', 'Jend. A. Yani',
         'Jend. Sudirman', 'Juanda', 'K.H. Maskur', 'K.H. Wahid Hasyim (Kopo)', 'Kali',
@@ -45,7 +46,7 @@ class Address extends \Faker\Provider\Address
         'Muwardi', 'Nakula', 'Nanas', 'Nangka', 'Orang',
         'Otista', 'Otto', 'PHH. Mustofa', 'Pacuan Kuda', 'Padang',
         'Padma', 'Pahlawan', 'Panjaitan', 'Pasir Koja', 'Pasirkoja',
-        'Pasteur', 'Pattimura', 'Pelajar Pejuang 45', 'Perintis Kemerdekaan', 'Peta',
+        'Pasteur', 'Pattimura', 'Pelajar Pejuang 45', 'Perintis Kemerdekaan', 'Peta', 'Pintu Besar Selatan',
         'Qrisdoren', 'R.E. Martadinata', 'R.M. Said', 'Raden', 'Raden Saleh',
         'Radio', 'Rajawali', 'Rajawali Barat', 'Rajawali Timur', 'Rajiman',
         'Raya Setiabudhi', 'Raya Ujungberung', 'Reksoninten', 'Ronggowarsito',
@@ -66,11 +67,11 @@ class Address extends \Faker\Provider\Address
     ];
 
     protected static $streetPrefix = [
-        'Ds.', 'Dk.', 'Gg.', 'Jln.', 'Jr.', 'Kpg.', 'Ki.', 'Psr.'
+        'Ds.', 'Dk.', 'Gg.', 'Jln.', 'Jr.', 'Kpg.', 'Ki.', 'Psr.',
     ];
 
     /**
-     * @link http://kodepos.nomor.net/_kodepos.php?_i=provinsi-kodepos
+     * @see http://kodepos.nomor.net/_kodepos.php?_i=provinsi-kodepos
      */
     protected static $state = [
         'Aceh', 'Sumatera Utara', 'Sumatera Barat', 'Jambi', 'Kepulauan Bangka Belitung', 'Riau',
@@ -80,13 +81,14 @@ class Address extends \Faker\Provider\Address
         'Kalimantan Tengah', 'Kalimantan Selatan', 'Kalimantan Timur',
         'Kalimantan Utara', 'Sulawesi Selatan', 'Sulawesi Utara', 'Gorontalo',
         'Sulawesi Tengah', 'Sulawesi Barat', 'Sulawesi Tenggara', 'Maluku',
-        'Maluku Utara', 'Papua Barat', 'Papua'
+        'Maluku Utara', 'Papua Barat', 'Papua',
     ];
 
     /**
      * Abbreviated State Names.
      *
-     * @link https://en.wikipedia.org/wiki/Provinces_of_Indonesia#Table_of_provinces
+     * @see https://en.wikipedia.org/wiki/Provinces_of_Indonesia#Table_of_provinces
+     *
      * @var array
      */
     protected static $stateAbbr = [
@@ -94,12 +96,12 @@ class Address extends \Faker\Provider\Address
         'Lampung', 'Banten', 'DKI', 'Jabar', 'Jateng', 'Jatim', 'NTT', 'DIY',
         'Bali', 'NTB', 'Kalbar', 'Kalteng', 'Kalsel', 'Kaltim', 'Kaltara', 'Sulsel',
         'Sulut', 'Gorontalo', 'Sulteng', 'Sulbar', 'Sultra', 'Maluku', 'Malut',
-        'Pabar', 'Papua'
+        'Pabar', 'Papua',
     ];
 
     /**
-     * @link http://id.wikipedia.org/wiki/Daftar_negara-negara_di_dunia
-     **/
+     * @see http://id.wikipedia.org/wiki/Daftar_negara-negara_di_dunia
+     */
     protected static $country = [
         'Afganistan', 'Afrika Selatan', 'Albania', 'Aljazair',
         'Amerika Serikat', 'Andorra', 'Angola', 'Anguilla',
@@ -219,11 +221,11 @@ class Address extends \Faker\Provider\Address
         // http://id.wikipedia.org/wiki/United_States_Virgin_Islands
         'Wilayah Samudra Hindia Britania',
 
-        'Wilayah Selatan Perancis', 'Yaman', 'Yunani', 'Zambia', 'Zimbabwe'
+        'Wilayah Selatan Perancis', 'Yaman', 'Yunani', 'Zambia', 'Zimbabwe',
     ];
 
     /**
-     * @link http://id.wikipedia.org/wiki/Daftar_kabupaten_dan_kota_Indonesia#Daftar_kota
+     * @see http://id.wikipedia.org/wiki/Daftar_kabupaten_dan_kota_Indonesia#Daftar_kota
      */
     protected static $cityNames = [
         'Administrasi Jakarta Barat', 'Administrasi Jakarta Pusat',
@@ -259,7 +261,7 @@ class Address extends \Faker\Provider\Address
     ];
 
     protected static $streetNameFormats = [
-        '{{street}}'
+        '{{street}}',
     ];
 
     protected static $streetAddressFormats = [
@@ -312,6 +314,6 @@ class Address extends \Faker\Provider\Address
 
     public static function buildingNumber()
     {
-        return self::numberBetween(1, 999);
+        return (string) self::numberBetween(1, 999);
     }
 }

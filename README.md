@@ -10,7 +10,9 @@ export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
 
 ||||||||||||||||||||||||||||
 
-
+upodate the composer :
+docker-compose run composer update
+||||||||||||||||||||
 
 docker-compose logs app
 docker-compose logs web

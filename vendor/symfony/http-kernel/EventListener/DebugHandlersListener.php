@@ -17,7 +17,6 @@ use Symfony\Component\Console\Event\ConsoleEvent;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\ErrorHandler\ErrorHandler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Debug\FileLinkFormatter;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -27,6 +26,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @author Nicolas Grekas <p@tchwork.com>
  *
  * @final
+ *
+ * @internal since Symfony 5.3
  */
 class DebugHandlersListener implements EventSubscriberInterface
 {
@@ -37,31 +38,34 @@ class DebugHandlersListener implements EventSubscriberInterface
     private $levels;
     private $throwAt;
     private $scream;
-    private $fileLinkFormat;
     private $scope;
     private $firstCall = true;
     private $hasTerminatedWithException;
 
     /**
-     * @param callable|null                 $exceptionHandler A handler that must support \Throwable instances that will be called on Exception
-     * @param array|int                     $levels           An array map of E_* to LogLevel::* or an integer bit field of E_* constants
-     * @param int|null                      $throwAt          Thrown errors in a bit field of E_* constants, or null to keep the current value
-     * @param bool                          $scream           Enables/disables screaming mode, where even silenced errors are logged
-     * @param string|FileLinkFormatter|null $fileLinkFormat   The format for links to source files
-     * @param bool                          $scope            Enables/disables scoping mode
+     * @param callable|null  $exceptionHandler A handler that must support \Throwable instances that will be called on Exception
+     * @param array|int|null $levels           An array map of E_* to LogLevel::* or an integer bit field of E_* constants
+     * @param int|null       $throwAt          Thrown errors in a bit field of E_* constants, or null to keep the current value
+     * @param bool           $scream           Enables/disables screaming mode, where even silenced errors are logged
+     * @param bool           $scope            Enables/disables scoping mode
      */
-    public function __construct(callable $exceptionHandler = null, LoggerInterface $logger = null, $levels = \E_ALL, ?int $throwAt = \E_ALL, bool $scream = true, $fileLinkFormat = null, bool $scope = true, LoggerInterface $deprecationLogger = null)
+    public function __construct(?callable $exceptionHandler = null, ?LoggerInterface $logger = null, $levels = \E_ALL, ?int $throwAt = \E_ALL, bool $scream = true, $scope = true, $deprecationLogger = null, $fileLinkFormat = null)
     {
-        $handler = set_exception_handler('var_dump');
+        if (!\is_bool($scope)) {
+            trigger_deprecation('symfony/http-kernel', '5.4', 'Passing a $fileLinkFormat is deprecated.');
+            $scope = $deprecationLogger;
+            $deprecationLogger = $fileLinkFormat;
+        }
+
+        $handler = set_exception_handler('is_int');
         $this->earlyHandler = \is_array($handler) ? $handler[0] : null;
         restore_exception_handler();
 
         $this->exceptionHandler = $exceptionHandler;
         $this->logger = $logger;
-        $this->levels = null === $levels ? \E_ALL : $levels;
+        $this->levels = $levels ?? \E_ALL;
         $this->throwAt = \is_int($throwAt) ? $throwAt : (null === $throwAt ? null : ($throwAt ? \E_ALL : null));
         $this->scream = $scream;
-        $this->fileLinkFormat = $fileLinkFormat;
         $this->scope = $scope;
         $this->deprecationLogger = $deprecationLogger;
     }
@@ -69,17 +73,18 @@ class DebugHandlersListener implements EventSubscriberInterface
     /**
      * Configures the error handler.
      */
-    public function configure(object $event = null)
+    public function configure(?object $event = null)
     {
         if ($event instanceof ConsoleEvent && !\in_array(\PHP_SAPI, ['cli', 'phpdbg'], true)) {
             return;
         }
-        if (!$event instanceof KernelEvent ? !$this->firstCall : !$event->isMasterRequest()) {
+        if (!$event instanceof KernelEvent ? !$this->firstCall : !$event->isMainRequest()) {
             return;
         }
         $this->firstCall = $this->hasTerminatedWithException = false;
+        $hasRun = null;
 
-        $handler = set_exception_handler('var_dump');
+        $handler = set_exception_handler('is_int');
         $handler = \is_array($handler) ? $handler[0] : null;
         restore_exception_handler();
 
@@ -140,6 +145,19 @@ class DebugHandlersListener implements EventSubscriberInterface
         if ($this->exceptionHandler) {
             if ($handler instanceof ErrorHandler) {
                 $handler->setExceptionHandler($this->exceptionHandler);
+                if (null !== $hasRun) {
+                    $throwAt = $handler->throwAt(0) | \E_ERROR | \E_CORE_ERROR | \E_COMPILE_ERROR | \E_USER_ERROR | \E_RECOVERABLE_ERROR | \E_PARSE;
+                    $loggers = [];
+
+                    foreach ($handler->setLoggers([]) as $type => $log) {
+                        if ($type & $throwAt) {
+                            $loggers[$type] = [null, $log[1]];
+                        }
+                    }
+
+                    // Assume $kernel->terminateWithException() will log uncaught exceptions appropriately
+                    $handler->setLoggers($loggers);
+                }
             }
             $this->exceptionHandler = null;
         }

@@ -66,7 +66,7 @@ class RedirectResponse extends Response
     /**
      * Returns the target URL.
      *
-     * @return string target URL
+     * @return string
      */
     public function getTargetUrl()
     {
@@ -103,6 +103,7 @@ class RedirectResponse extends Response
 </html>', htmlspecialchars($url, \ENT_QUOTES, 'UTF-8')));
 
         $this->headers->set('Location', $url);
+        $this->headers->set('Content-Type', 'text/html; charset=utf-8');
 
         return $this;
     }

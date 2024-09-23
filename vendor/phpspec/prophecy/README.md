@@ -1,7 +1,7 @@
 # Prophecy
 
 [![Stable release](https://poser.pugx.org/phpspec/prophecy/version.svg)](https://packagist.org/packages/phpspec/prophecy)
-[![Build Status](https://travis-ci.org/phpspec/prophecy.svg?branch=master)](https://travis-ci.org/phpspec/prophecy)
+[![Build](https://github.com/phpspec/prophecy/actions/workflows/build.yml/badge.svg)](https://github.com/phpspec/prophecy/actions/workflows/build.yml)
 
 Prophecy is a highly opinionated yet very powerful and flexible PHP object mocking
 framework. Though initially it was created to fulfil phpspec2 needs, it is flexible
@@ -402,3 +402,10 @@ $em->flush()->shouldHaveBeenCalled();
 ```
 
 Such manipulation with doubles is called spying. And with Prophecy it just works.
+
+
+## FAQ
+
+### Can I call the original methods on a prophesized class?
+
+Prophecy does not support calling the original methods on a phrophesized class. If you find yourself needing to mock some methods of a class while calling the original version of other methods, it's likely a sign that your class violates the [single-responsibility principle](https://en.wikipedia.org/wiki/Single-responsibility_principle) and should be refactored.

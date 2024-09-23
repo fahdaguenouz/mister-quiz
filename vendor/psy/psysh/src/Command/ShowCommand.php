@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2020 Justin Hileman
+ * (c) 2012-2023 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,14 +28,6 @@ class ShowCommand extends ReflectingCommand
 {
     private $lastException;
     private $lastExceptionIndex;
-
-    /**
-     * @param string|null $colorMode (deprecated and ignored)
-     */
-    public function __construct($colorMode = null)
-    {
-        parent::__construct();
-    }
 
     /**
      * {@inheritdoc}
@@ -69,8 +61,10 @@ HELP
 
     /**
      * {@inheritdoc}
+     *
+     * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // n.b. As far as I can tell, InputInterface doesn't want to tell me
         // whether an option with an optional value was actually passed. If you
@@ -114,8 +108,17 @@ HELP
             // If we didn't get a target and Reflector, maybe we got a filename?
             $target = $e->getTarget();
             if (\is_string($target) && \is_file($target) && $code = @\file_get_contents($target)) {
-                // @todo maybe set $__file to $target?
-                return $output->page(CodeFormatter::formatCode($code));
+                $file = \realpath($target);
+                if ($file !== $this->context->get('__file')) {
+                    $this->context->setCommandScopeVariables([
+                        '__file' => $file,
+                        '__dir'  => \dirname($file),
+                    ]);
+                }
+
+                $output->page(CodeFormatter::formatCode($code));
+
+                return;
             } else {
                 throw $e;
             }
@@ -186,7 +189,7 @@ HELP
         ));
     }
 
-    private function replaceCwd($file)
+    private function replaceCwd(string $file): string
     {
         if ($cwd = \getcwd()) {
             $cwd = \rtrim($cwd, \DIRECTORY_SEPARATOR).\DIRECTORY_SEPARATOR;
@@ -245,7 +248,7 @@ HELP
                 if ($namespace = $refl->getNamespaceName()) {
                     $vars['__namespace'] = $namespace;
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // oh well
             }
         } elseif (isset($context['function'])) {
@@ -256,7 +259,7 @@ HELP
                 if ($namespace = $refl->getNamespaceName()) {
                     $vars['__namespace'] = $namespace;
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // oh well
             }
         }
@@ -281,7 +284,7 @@ HELP
         $this->context->setCommandScopeVariables($vars);
     }
 
-    private function extractEvalFileAndLine($file)
+    private function extractEvalFileAndLine(string $file)
     {
         if (\preg_match('/(.*)\\((\\d+)\\) : eval\\(\\)\'d code$/', $file, $matches)) {
             return [$matches[1], $matches[2]];

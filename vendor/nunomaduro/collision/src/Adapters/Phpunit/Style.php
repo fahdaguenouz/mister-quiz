@@ -69,7 +69,6 @@ final class Style
         }
 
         $state->eachTestCaseTests(function (TestResult $testResult) {
-            usleep(20000);
             $this->output->writeln($this->testLineFrom(
                 $testResult->color,
                 $testResult->icon,
@@ -180,11 +179,23 @@ final class Style
 
         $writer->ignoreFilesIn([
             '/vendor\/pestphp\/pest/',
+            '/vendor\/phpspec\/prophecy-phpunit/',
             '/vendor\/phpunit\/phpunit\/src/',
             '/vendor\/mockery\/mockery/',
             '/vendor\/laravel\/dusk/',
             '/vendor\/laravel\/framework\/src\/Illuminate\/Testing/',
             '/vendor\/laravel\/framework\/src\/Illuminate\/Foundation\/Testing/',
+            '/vendor\/symfony\/framework-bundle\/Test/',
+            '/vendor\/symfony\/phpunit-bridge/',
+            '/vendor\/symfony\/dom-crawler/',
+            '/vendor\/symfony\/browser-kit/',
+            '/vendor\/symfony\/css-selector/',
+            '/vendor\/bin\/.phpunit/',
+            '/bin\/.phpunit/',
+            '/vendor\/bin\/simple-phpunit/',
+            '/bin\/phpunit/',
+            '/vendor\/coduo\/php-matcher\/src\/PHPUnit/',
+            '/vendor\/sulu\/sulu\/src\/Sulu\/Bundle\/TestBundle\/Testing/',
         ]);
 
         if ($throwable instanceof ExceptionWrapper && $throwable->getOriginalException() !== null) {
@@ -197,7 +208,20 @@ final class Style
 
         if ($throwable instanceof ExpectationFailedException && $comparisionFailure = $throwable->getComparisonFailure()) {
             $diff  = $comparisionFailure->getDiff();
+            $lines = explode(PHP_EOL, $diff);
+            $diff  = '';
+            foreach ($lines as $line) {
+                if (0 === strpos($line, '-')) {
+                    $line = '<fg=red>' . $line . '</>';
+                } elseif (0 === strpos($line, '+')) {
+                    $line = '<fg=green>' . $line . '</>';
+                }
+
+                $diff .= $line . PHP_EOL;
+            }
+
             $diff  = trim((string) preg_replace("/\r|\n/", "\n  ", $diff));
+
             $this->output->write("  $diff");
         }
 

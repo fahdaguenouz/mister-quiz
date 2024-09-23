@@ -37,7 +37,7 @@ class Profiler implements ResetInterface
     private $initiallyEnabled = true;
     private $enabled = true;
 
-    public function __construct(ProfilerStorageInterface $storage, LoggerInterface $logger = null, bool $enable = true)
+    public function __construct(ProfilerStorageInterface $storage, ?LoggerInterface $logger = null, bool $enable = true)
     {
         $this->storage = $storage;
         $this->logger = $logger;
@@ -63,7 +63,7 @@ class Profiler implements ResetInterface
     /**
      * Loads the Profile for the given Response.
      *
-     * @return Profile|null A Profile instance
+     * @return Profile|null
      */
     public function loadProfileFromResponse(Response $response)
     {
@@ -77,7 +77,7 @@ class Profiler implements ResetInterface
     /**
      * Loads the Profile for the given token.
      *
-     * @return Profile|null A Profile instance
+     * @return Profile|null
      */
     public function loadProfile(string $token)
     {
@@ -116,15 +116,15 @@ class Profiler implements ResetInterface
     /**
      * Finds profiler tokens for the given criteria.
      *
-     * @param string|null $limit The maximum number of tokens to return
+     * @param int|null    $limit The maximum number of tokens to return
      * @param string|null $start The start date to search from
      * @param string|null $end   The end date to search to
      *
-     * @return array An array of tokens
+     * @return array
      *
      * @see https://php.net/datetime.formats for the supported date/time formats
      */
-    public function find(?string $ip, ?string $url, ?string $limit, ?string $method, ?string $start, ?string $end, string $statusCode = null)
+    public function find(?string $ip, ?string $url, ?int $limit, ?string $method, ?string $start, ?string $end, ?string $statusCode = null)
     {
         return $this->storage->find($ip, $url, $limit, $method, $this->getTimestamp($start), $this->getTimestamp($end), $statusCode);
     }
@@ -132,9 +132,9 @@ class Profiler implements ResetInterface
     /**
      * Collects data for the given Response.
      *
-     * @return Profile|null A Profile instance or null if the profiler is disabled
+     * @return Profile|null
      */
-    public function collect(Request $request, Response $response, \Throwable $exception = null)
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null)
     {
         if (false === $this->enabled) {
             return null;
@@ -178,7 +178,7 @@ class Profiler implements ResetInterface
     /**
      * Gets the Collectors associated with this profiler.
      *
-     * @return array An array of collectors
+     * @return array
      */
     public function all()
     {
@@ -223,7 +223,7 @@ class Profiler implements ResetInterface
      *
      * @param string $name A collector name
      *
-     * @return DataCollectorInterface A DataCollectorInterface instance
+     * @return DataCollectorInterface
      *
      * @throws \InvalidArgumentException if the collector does not exist
      */

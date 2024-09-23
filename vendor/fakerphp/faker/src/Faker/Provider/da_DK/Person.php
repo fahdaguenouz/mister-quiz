@@ -5,9 +5,7 @@ namespace Faker\Provider\da_DK;
 use Faker\Provider\DateTime;
 
 /**
- * @link http://www.danskernesnavne.navneforskning.ku.dk/Personnavne.asp
- *
- * @author Antoine Corcy <contact@sbin.dk>
+ * @see http://www.danskernesnavne.navneforskning.ku.dk/Personnavne.asp
  */
 class Person extends \Faker\Provider\Person
 {
@@ -38,7 +36,7 @@ class Person extends \Faker\Provider\Person
      * @var array Danish first names.
      */
     protected static $firstNameMale = [
-        'Aage', 'Adam', 'Adolf', 'Ahmad', 'Ahmed', 'Aksel', 'Albert', 'Alex', 'Alexander', 'Alf', 'Alfred', 'Ali', 'Allan',
+        'Aage', 'Adam', 'Ahmad', 'Ahmed', 'Aksel', 'Albert', 'Alex', 'Alexander', 'Alf', 'Alfred', 'Ali', 'Allan',
         'Anders', 'Andreas', 'Anker', 'Anton', 'Arne', 'Arnold', 'Arthur', 'Asbjørn', 'Asger', 'August', 'Axel', 'Benjamin',
         'Benny', 'Bent', 'Bernhard', 'Birger', 'Bjarne', 'Bjørn', 'Bo', 'Brian', 'Bruno', 'Børge', 'Carl', 'Carlo',
         'Carsten', 'Casper', 'Charles', 'Chris', 'Christian', 'Christoffer', 'Christopher', 'Claus', 'Dan', 'Daniel', 'David', 'Dennis',
@@ -183,8 +181,8 @@ class Person extends \Faker\Provider\Person
     /**
      * Randomly return a danish CPR number (Personnal identification number) format.
      *
-     * @link http://cpr.dk/cpr/site.aspx?p=16
-     * @link http://en.wikipedia.org/wiki/Personal_identification_number_%28Denmark%29
+     * @see http://cpr.dk/cpr/site.aspx?p=16
+     * @see http://en.wikipedia.org/wiki/Personal_identification_number_%28Denmark%29
      *
      * @return string
      */

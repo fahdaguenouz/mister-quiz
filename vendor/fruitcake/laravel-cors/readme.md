@@ -3,8 +3,9 @@
 [![Build Status][ico-actions]][link-actions]
 [![Software License][ico-license]](LICENSE.md)
 [![Total Downloads][ico-downloads]][link-downloads]
+[![Fruitcake](https://img.shields.io/badge/Powered%20By-Fruitcake-b2bc35.svg)](https://fruitcake.nl/)
 
-Implements https://github.com/asm89/stack-cors for Laravel
+Implements https://github.com/fruitcake/php-cors for Laravel
 
 ## About
 
@@ -14,7 +15,7 @@ headers with Laravel middleware configuration.
 If you want to have a global overview of CORS workflow, you can  browse
 this [image](http://www.html5rocks.com/static/images/cors_server_flowchart.png).
 
-## Upgrading from 0.x / barryvdh-laravel-cors
+## Upgrading from 0.x (barryvdh/laravel-cors)
 When upgrading from 0.x versions, there are some breaking changes:
  - **A new 'paths' property is used to enable/disable CORS on certain routes. This is empty by default, so fill it correctly!**
  - **Group middleware is no longer supported, use the global middleware**
@@ -73,14 +74,14 @@ php artisan vendor:publish --tag="cors"
 
 | Option                   | Description                                                              | Default value |
 |--------------------------|--------------------------------------------------------------------------|---------------|
-| paths                    | You can enable CORS for 1 or multiple paths, eg. `['api/*'] `            | `array()`     |
-| allowed_origins          | Matches the request origin. Wildcards can be used, eg. `*.mydomain.com`  | `array('*')`  |
-| allowed_origins_patterns | Matches the request origin with `preg_match`.                            | `array()`     |
-| allowed_methods          | Matches the request method.                                              | `array('*')`  |
-| allowed_headers          | Sets the Access-Control-Allow-Headers response header.                   | `array('*')`  |
+| paths                    | You can enable CORS for 1 or multiple paths, eg. `['api/*'] `            | `[]`          |
+| allowed_origins          | Matches the request origin. Wildcards can be used, eg. `*.mydomain.com` or `mydomain.com:*`  | `['*']`       |
+| allowed_origins_patterns | Matches the request origin with `preg_match`.                            | `[]`          |
+| allowed_methods          | Matches the request method.                                              | `['*']`       |
+| allowed_headers          | Sets the Access-Control-Allow-Headers response header.                   | `['*']`       |
 | exposed_headers          | Sets the Access-Control-Expose-Headers response header.                  | `false`       |
 | max_age                  | Sets the Access-Control-Max-Age response header.                         | `0`           |
-| supports_credentials     | Sets the Access-Control-Allow-Credentials header.                        | `false`       |
+| supports_credentials     | Sets the Access-Control-Allow-Credentials header.                        | `[]`       |
 
 
 `allowed_origins`, `allowed_headers` and `allowed_methods` can be set to `['*']` to accept any value.
@@ -90,6 +91,8 @@ php artisan vendor:publish --tag="cors"
 > **Note:** Try to be a specific as possible. You can start developing with loose constraints, but it's better to be as strict as possible!
 
 > **Note:** Because of [http method overriding](http://symfony.com/doc/current/reference/configuration/framework.html#http-method-override) in Laravel, allowing POST methods will also enable the API users to perform PUT and DELETE requests as well.
+
+> **Note:** Sometimes it's necessary to specify the port _(when you're coding your app in a local environment for example)_. You can specify the port or using a wildcard here too, eg. `localhost:3000`, `localhost:*` or even using a FQDN `app.mydomain.com:8080`
 
 ### Lumen
 
@@ -118,9 +121,13 @@ $app->middleware([
 
 ## Common problems
 
+### Wrong config
+
+Make sure the `path` option in the config is correct and actually matches the route you are using. Remember to clear the config cache as well.
+
 ### Error handling, Middleware order
 
-Sometimes errors/middleware that return own responses can prevent the CORS Middleware from being run. Try changing the order of the Middleware and make sure it's the first entry in the global middleware, not a route group. Also check your logs for actual errors, because without CORS, the errors will be swallowed by the browser, only showing CORS errors.
+Sometimes errors/middleware that return own responses can prevent the CORS Middleware from being run. Try changing the order of the Middleware and make sure it's the first entry in the global middleware, not a route group. Also check your logs for actual errors, because without CORS, the errors will be swallowed by the browser, only showing CORS errors. Also try running it without CORS to make sure it actually works.
 
 ### Authorization headers / Credentials
 
@@ -137,10 +144,15 @@ Otherwise you can disable CSRF for certain requests in `App\Http\Middleware\Veri
 
 ```php
 protected $except = [
-    'api/*'
+    'api/*',
+    'sub.domain.zone' => [
+      'prefix/*'
+    ],
 ];
 ```
 
+### Duplicate headers
+The CORS Middleware should be the only place you add these headers. If you also add headers in .htaccess, nginx or your index.php file, you will get duplicate headers and unexpected results.
 
 ## License
 
@@ -148,7 +160,7 @@ Released under the MIT License, see [LICENSE](LICENSE).
 
 [ico-version]: https://img.shields.io/packagist/v/fruitcake/laravel-cors.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-[ico-actions]: https://github.com/fruitcake/laravel-cors/workflows/.github/workflows/run-tests.yml/badge.svg
+[ico-actions]: https://github.com/fruitcake/laravel-cors/actions/workflows/run-tests.yml/badge.svg
 [ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/fruitcake/laravel-cors.svg?style=flat-square
 [ico-code-quality]: https://img.shields.io/scrutinizer/g/fruitcake/laravel-cors.svg?style=flat-square
 [ico-downloads]: https://img.shields.io/packagist/dt/fruitcake/laravel-cors.svg?style=flat-square

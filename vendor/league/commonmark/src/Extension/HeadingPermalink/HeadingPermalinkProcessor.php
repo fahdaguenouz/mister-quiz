@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -11,92 +13,77 @@
 
 namespace League\CommonMark\Extension\HeadingPermalink;
 
-use League\CommonMark\Block\Element\Document;
-use League\CommonMark\Block\Element\Heading;
+use League\CommonMark\Environment\EnvironmentAwareInterface;
+use League\CommonMark\Environment\EnvironmentInterface;
 use League\CommonMark\Event\DocumentParsedEvent;
-use League\CommonMark\Exception\InvalidOptionException;
-use League\CommonMark\Extension\HeadingPermalink\Slug\SlugGeneratorInterface as DeprecatedSlugGeneratorInterface;
-use League\CommonMark\Inline\Element\Code;
-use League\CommonMark\Inline\Element\Text;
-use League\CommonMark\Node\Node;
-use League\CommonMark\Normalizer\SlugNormalizer;
+use League\CommonMark\Extension\CommonMark\Node\Block\Heading;
+use League\CommonMark\Node\NodeIterator;
+use League\CommonMark\Node\RawMarkupContainerInterface;
+use League\CommonMark\Node\StringContainerHelper;
 use League\CommonMark\Normalizer\TextNormalizerInterface;
-use League\CommonMark\Util\ConfigurationAwareInterface;
-use League\CommonMark\Util\ConfigurationInterface;
+use League\Config\ConfigurationInterface;
+use League\Config\Exception\InvalidConfigurationException;
 
 /**
  * Searches the Document for Heading elements and adds HeadingPermalinks to each one
  */
-final class HeadingPermalinkProcessor implements ConfigurationAwareInterface
+final class HeadingPermalinkProcessor implements EnvironmentAwareInterface
 {
-    const INSERT_BEFORE = 'before';
-    const INSERT_AFTER = 'after';
+    public const INSERT_BEFORE = 'before';
+    public const INSERT_AFTER  = 'after';
+    public const INSERT_NONE   = 'none';
 
-    /** @var TextNormalizerInterface|DeprecatedSlugGeneratorInterface */
-    private $slugNormalizer;
+    /** @psalm-readonly-allow-private-mutation */
+    private TextNormalizerInterface $slugNormalizer;
 
-    /** @var ConfigurationInterface */
-    private $config;
+    /** @psalm-readonly-allow-private-mutation */
+    private ConfigurationInterface $config;
 
-    /**
-     * @param TextNormalizerInterface|DeprecatedSlugGeneratorInterface|null $slugNormalizer
-     */
-    public function __construct($slugNormalizer = null)
+    public function setEnvironment(EnvironmentInterface $environment): void
     {
-        if ($slugNormalizer instanceof DeprecatedSlugGeneratorInterface) {
-            @trigger_error(sprintf('Passing a %s into the %s constructor is deprecated; use a %s instead', DeprecatedSlugGeneratorInterface::class, self::class, TextNormalizerInterface::class), E_USER_DEPRECATED);
-        }
-
-        $this->slugNormalizer = $slugNormalizer ?? new SlugNormalizer();
-    }
-
-    public function setConfiguration(ConfigurationInterface $configuration)
-    {
-        $this->config = $configuration;
+        $this->config         = $environment->getConfiguration();
+        $this->slugNormalizer = $environment->getSlugNormalizer();
     }
 
     public function __invoke(DocumentParsedEvent $e): void
     {
-        $this->useNormalizerFromConfigurationIfProvided();
+        $min            = (int) $this->config->get('heading_permalink/min_heading_level');
+        $max            = (int) $this->config->get('heading_permalink/max_heading_level');
+        $applyToHeading = (bool) $this->config->get('heading_permalink/apply_id_to_heading');
+        $idPrefix       = (string) $this->config->get('heading_permalink/id_prefix');
+        $slugLength     = (int) $this->config->get('slug_normalizer/max_length');
+        $headingClass   = (string) $this->config->get('heading_permalink/heading_class');
 
-        $walker = $e->getDocument()->walker();
+        if ($idPrefix !== '') {
+            $idPrefix .= '-';
+        }
 
-        while ($event = $walker->next()) {
-            $node = $event->getNode();
-            if ($node instanceof Heading && $event->isEntering()) {
-                $this->addHeadingLink($node, $e->getDocument());
+        foreach ($e->getDocument()->iterator(NodeIterator::FLAG_BLOCKS_ONLY) as $node) {
+            if ($node instanceof Heading && $node->getLevel() >= $min && $node->getLevel() <= $max) {
+                $this->addHeadingLink($node, $slugLength, $idPrefix, $applyToHeading, $headingClass);
             }
         }
     }
 
-    private function useNormalizerFromConfigurationIfProvided(): void
+    private function addHeadingLink(Heading $heading, int $slugLength, string $idPrefix, bool $applyToHeading, string $headingClass): void
     {
-        $generator = $this->config->get('heading_permalink/slug_normalizer');
-        if ($generator === null) {
-            return;
+        $text = StringContainerHelper::getChildText($heading, [RawMarkupContainerInterface::class]);
+        $slug = $this->slugNormalizer->normalize($text, [
+            'node' => $heading,
+            'length' => $slugLength,
+        ]);
+
+        if ($applyToHeading) {
+            $heading->data->set('attributes/id', $idPrefix . $slug);
         }
 
-        if (!($generator instanceof DeprecatedSlugGeneratorInterface || $generator instanceof TextNormalizerInterface)) {
-            throw new InvalidOptionException('The heading_permalink/slug_normalizer option must be an instance of ' . TextNormalizerInterface::class);
+        if ($headingClass !== '') {
+            $heading->data->append('attributes/class', $headingClass);
         }
-
-        $this->slugNormalizer = $generator;
-    }
-
-    private function addHeadingLink(Heading $heading, Document $document): void
-    {
-        $text = $this->getChildText($heading);
-        if ($this->slugNormalizer instanceof DeprecatedSlugGeneratorInterface) {
-            $slug = $this->slugNormalizer->createSlug($text);
-        } else {
-            $slug = $this->slugNormalizer->normalize($text, $heading);
-        }
-
-        $slug = $this->ensureUnique($slug, $document);
 
         $headingLinkAnchor = new HeadingPermalink($slug);
 
-        switch ($this->config->get('heading_permalink/insert', 'before')) {
+        switch ($this->config->get('heading_permalink/insert')) {
             case self::INSERT_BEFORE:
                 $heading->prependChild($headingLinkAnchor);
 
@@ -105,44 +92,10 @@ final class HeadingPermalinkProcessor implements ConfigurationAwareInterface
                 $heading->appendChild($headingLinkAnchor);
 
                 return;
+            case self::INSERT_NONE:
+                return;
             default:
-                throw new \RuntimeException("Invalid configuration value for heading_permalink/insert; expected 'before' or 'after'");
+                throw new InvalidConfigurationException("Invalid configuration value for heading_permalink/insert; expected 'before', 'after', or 'none'");
         }
-    }
-
-    /**
-     * @deprecated Not needed in 2.0
-     */
-    private function getChildText(Node $node): string
-    {
-        $text = '';
-
-        $walker = $node->walker();
-        while ($event = $walker->next()) {
-            if ($event->isEntering() && (($child = $event->getNode()) instanceof Text || $child instanceof Code)) {
-                $text .= $child->getContent();
-            }
-        }
-
-        return $text;
-    }
-
-    private function ensureUnique(string $proposed, Document $document): string
-    {
-        // Quick path, it's a unique ID
-        if (!isset($document->data['heading_ids'][$proposed])) {
-            $document->data['heading_ids'][$proposed] = true;
-
-            return $proposed;
-        }
-
-        $extension = 0;
-        do {
-            ++$extension;
-        } while (isset($document->data['heading_ids']["$proposed-$extension"]));
-
-        $document->data['heading_ids']["$proposed-$extension"] = true;
-
-        return "$proposed-$extension";
     }
 }

@@ -20,6 +20,17 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ProgressIndicator
 {
+    private const FORMATS = [
+        'normal' => ' %indicator% %message%',
+        'normal_no_ansi' => ' %message%',
+
+        'verbose' => ' %indicator% %message% (%elapsed:6s%)',
+        'verbose_no_ansi' => ' %message% (%elapsed:6s%)',
+
+        'very_verbose' => ' %indicator% %message% (%elapsed:6s%, %memory:6s%)',
+        'very_verbose_no_ansi' => ' %message% (%elapsed:6s%, %memory:6s%)',
+    ];
+
     private $output;
     private $startTime;
     private $format;
@@ -30,14 +41,16 @@ class ProgressIndicator
     private $indicatorUpdateTime;
     private $started = false;
 
+    /**
+     * @var array<string, callable>
+     */
     private static $formatters;
-    private static $formats;
 
     /**
      * @param int        $indicatorChangeInterval Change interval in milliseconds
      * @param array|null $indicatorValues         Animated indicator characters
      */
-    public function __construct(OutputInterface $output, string $format = null, int $indicatorChangeInterval = 100, array $indicatorValues = null)
+    public function __construct(OutputInterface $output, ?string $format = null, int $indicatorChangeInterval = 100, ?array $indicatorValues = null)
     {
         $this->output = $output;
 
@@ -116,8 +129,6 @@ class ProgressIndicator
 
     /**
      * Finish the indicator with message.
-     *
-     * @param $message
      */
     public function finish(string $message)
     {
@@ -134,15 +145,11 @@ class ProgressIndicator
     /**
      * Gets the format for a given name.
      *
-     * @return string|null A format string
+     * @return string|null
      */
     public static function getFormatDefinition(string $name)
     {
-        if (!self::$formats) {
-            self::$formats = self::initFormats();
-        }
-
-        return self::$formats[$name] ?? null;
+        return self::FORMATS[$name] ?? null;
     }
 
     /**
@@ -162,7 +169,7 @@ class ProgressIndicator
     /**
      * Gets the placeholder formatter for a given name (including the delimiter char like %).
      *
-     * @return callable|null A PHP callable
+     * @return callable|null
      */
     public static function getPlaceholderFormatterDefinition(string $name)
     {
@@ -185,7 +192,7 @@ class ProgressIndicator
             }
 
             return $matches[0];
-        }, $this->format));
+        }, $this->format ?? ''));
     }
 
     private function determineBestFormat(): string
@@ -235,20 +242,6 @@ class ProgressIndicator
             'memory' => function () {
                 return Helper::formatMemory(memory_get_usage(true));
             },
-        ];
-    }
-
-    private static function initFormats(): array
-    {
-        return [
-            'normal' => ' %indicator% %message%',
-            'normal_no_ansi' => ' %message%',
-
-            'verbose' => ' %indicator% %message% (%elapsed:6s%)',
-            'verbose_no_ansi' => ' %message% (%elapsed:6s%)',
-
-            'very_verbose' => ' %indicator% %message% (%elapsed:6s%, %memory:6s%)',
-            'very_verbose_no_ansi' => ' %message% (%elapsed:6s%, %memory:6s%)',
         ];
     }
 }

@@ -28,13 +28,14 @@ final class XdebugFilterScriptGenerator
     public function generate(FilterConfiguration $filter): string
     {
         $files = array_map(
-            static function ($item) {
+            static function ($item)
+            {
                 return sprintf(
                     "        '%s'",
-                    $item
+                    $item,
                 );
             },
-            $this->getItems($filter)
+            $this->getItems($filter),
         );
 
         $files = implode(",\n", $files);
@@ -66,7 +67,7 @@ EOF;
             if (is_string($path)) {
                 $files[] = sprintf(
                     addslashes('%s' . DIRECTORY_SEPARATOR),
-                    $path
+                    $path,
                 );
             }
         }

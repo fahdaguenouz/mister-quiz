@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -11,6 +13,6 @@
 
 namespace League\CommonMark\Exception;
 
-final class UnexpectedEncodingException extends \RuntimeException
+final class UnexpectedEncodingException extends \RuntimeException implements CommonMarkException
 {
 }

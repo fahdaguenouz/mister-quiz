@@ -26,7 +26,6 @@ use function is_numeric;
 use function is_object;
 use function is_scalar;
 use function is_string;
-use function mb_strtolower;
 use function ord;
 use function preg_quote;
 use function preg_replace;
@@ -47,6 +46,7 @@ use ReflectionException;
 use ReflectionMethod;
 use ReflectionObject;
 use SebastianBergmann\Exporter\Exporter;
+use SebastianBergmann\RecursionContext\InvalidArgumentException;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
@@ -109,24 +109,7 @@ final class NamePrettifier
             $fullyQualifiedName = $className;
         }
 
-        $result       = '';
-        $wasLowerCase = false;
-
-        foreach (range(0, strlen($className) - 1) as $i) {
-            $isLowerCase = mb_strtolower($className[$i], 'UTF-8') === $className[$i];
-
-            if ($wasLowerCase && !$isLowerCase) {
-                $result .= ' ';
-            }
-
-            $result .= $className[$i];
-
-            if ($isLowerCase) {
-                $wasLowerCase = true;
-            } else {
-                $wasLowerCase = false;
-            }
-        }
+        $result = preg_replace('/(?<=[[:lower:]])(?=[[:upper:]])/u', ' ', $className);
 
         if ($fullyQualifiedName !== $className) {
             return $result . ' (' . $fullyQualifiedName . ')';
@@ -136,18 +119,19 @@ final class NamePrettifier
     }
 
     /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function prettifyTestCase(TestCase $test): string
     {
         $annotations = Test::parseTestMethodAnnotations(
             get_class($test),
-            $test->getName(false)
+            $test->getName(false),
         );
 
         $annotationWithPlaceholders = false;
 
-        $callback = static function (string $variable): string {
+        $callback = static function (string $variable): string
+        {
             return sprintf('/%s(?=\b)/', preg_quote($variable, '/'));
         };
 
@@ -249,7 +233,7 @@ final class NamePrettifier
     }
 
     /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function mapTestMethodParameterNamesToProvidedDataValues(TestCase $test): array
     {
@@ -259,8 +243,8 @@ final class NamePrettifier
         } catch (ReflectionException $e) {
             throw new UtilException(
                 $e->getMessage(),
-                (int) $e->getCode(),
-                $e
+                $e->getCode(),
+                $e,
             );
         }
         // @codeCoverageIgnoreEnd
@@ -279,8 +263,8 @@ final class NamePrettifier
                 } catch (ReflectionException $e) {
                     throw new UtilException(
                         $e->getMessage(),
-                        (int) $e->getCode(),
-                        $e
+                        $e->getCode(),
+                        $e,
                     );
                 }
                 // @codeCoverageIgnoreEnd
@@ -318,7 +302,8 @@ final class NamePrettifier
         }
 
         if ($this->useColor) {
-            $providedData = array_map(static function ($value) {
+            $providedData = array_map(static function ($value)
+            {
                 return Color::colorize('fg-cyan', Color::visualizeWhitespace((string) $value, true));
             }, $providedData);
         }

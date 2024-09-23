@@ -35,19 +35,28 @@ class Logger extends AbstractLogger
 
     private $minLevelIndex;
     private $formatter;
+
+    /** @var resource|null */
     private $handle;
 
-    public function __construct(string $minLevel = null, $output = null, callable $formatter = null)
+    /**
+     * @param string|resource|null $output
+     */
+    public function __construct(?string $minLevel = null, $output = null, ?callable $formatter = null)
     {
         if (null === $minLevel) {
             $minLevel = null === $output || 'php://stdout' === $output || 'php://stderr' === $output ? LogLevel::ERROR : LogLevel::WARNING;
 
             if (isset($_ENV['SHELL_VERBOSITY']) || isset($_SERVER['SHELL_VERBOSITY'])) {
                 switch ((int) ($_ENV['SHELL_VERBOSITY'] ?? $_SERVER['SHELL_VERBOSITY'])) {
-                    case -1: $minLevel = LogLevel::ERROR; break;
-                    case 1: $minLevel = LogLevel::NOTICE; break;
-                    case 2: $minLevel = LogLevel::INFO; break;
-                    case 3: $minLevel = LogLevel::DEBUG; break;
+                    case -1: $minLevel = LogLevel::ERROR;
+                        break;
+                    case 1: $minLevel = LogLevel::NOTICE;
+                        break;
+                    case 2: $minLevel = LogLevel::INFO;
+                        break;
+                    case 3: $minLevel = LogLevel::DEBUG;
+                        break;
                 }
             }
         }
@@ -58,7 +67,7 @@ class Logger extends AbstractLogger
 
         $this->minLevelIndex = self::LEVELS[$minLevel];
         $this->formatter = $formatter ?: [$this, 'format'];
-        if ($output && false === $this->handle = \is_resource($output) ? $output : @fopen($output, 'a')) {
+        if ($output && false === $this->handle = \is_string($output) ? @fopen($output, 'a') : $output) {
             throw new InvalidArgumentException(sprintf('Unable to open "%s".', $output));
         }
     }
@@ -80,7 +89,7 @@ class Logger extends AbstractLogger
 
         $formatter = $this->formatter;
         if ($this->handle) {
-            @fwrite($this->handle, $formatter($level, $message, $context));
+            @fwrite($this->handle, $formatter($level, $message, $context).\PHP_EOL);
         } else {
             error_log($formatter($level, $message, $context, false));
         }
@@ -88,10 +97,10 @@ class Logger extends AbstractLogger
 
     private function format(string $level, string $message, array $context, bool $prefixDate = true): string
     {
-        if (false !== strpos($message, '{')) {
+        if (str_contains($message, '{')) {
             $replacements = [];
             foreach ($context as $key => $val) {
-                if (null === $val || is_scalar($val) || (\is_object($val) && method_exists($val, '__toString'))) {
+                if (null === $val || \is_scalar($val) || (\is_object($val) && method_exists($val, '__toString'))) {
                     $replacements["{{$key}}"] = $val;
                 } elseif ($val instanceof \DateTimeInterface) {
                     $replacements["{{$key}}"] = $val->format(\DateTime::RFC3339);
@@ -105,7 +114,7 @@ class Logger extends AbstractLogger
             $message = strtr($message, $replacements);
         }
 
-        $log = sprintf('[%s] %s', $level, $message).\PHP_EOL;
+        $log = sprintf('[%s] %s', $level, $message);
         if ($prefixDate) {
             $log = date(\DateTime::RFC3339).' '.$log;
         }

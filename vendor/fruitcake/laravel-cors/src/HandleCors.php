@@ -4,6 +4,7 @@ namespace Fruitcake\Cors;
 
 use Closure;
 use Asm89\Stack\CorsService;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Container\Container;
@@ -46,12 +47,6 @@ class HandleCors
             return $response;
         }
 
-        // Add the headers on the Request Handled event as fallback in case of exceptions
-        if (class_exists(RequestHandled::class) && $this->container->bound('events')) {
-            $this->container->make('events')->listen(RequestHandled::class, function (RequestHandled $event) {
-                $this->addHeaders($event->request, $event->response);
-            });
-        }
 
         // Handle the request
         $response = $next($request);
@@ -81,6 +76,20 @@ class HandleCors
     }
 
     /**
+     * Add the headers to the Response, if they don't exist yet.
+     *
+     * @param RequestHandled $event
+     * @deprecated
+     */
+    public function onRequestHandled(RequestHandled $event)
+    {
+        if ($this->shouldRun($event->request) && $this->container->make(Kernel::class)->hasMiddleware(static::class)) {
+            $this->addHeaders($event->request, $event->response);
+        }
+    }
+
+
+    /**
      * Determine if the request has a URI that should pass through the CORS flow.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -94,13 +103,13 @@ class HandleCors
     /**
      * The the path from the config, to see if the CORS Service should run
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return bool
      */
     protected function isMatchingPath(Request $request): bool
     {
         // Get the paths from the config or the middleware
-        $paths = $this->container['config']->get('cors.paths', []);
+        $paths = $this->getPathsByHost($request->getHost());
 
         foreach ($paths as $path) {
             if ($path !== '/') {
@@ -113,5 +122,24 @@ class HandleCors
         }
 
         return false;
+    }
+
+    /**
+     * Paths by given host or string values in config by default
+     *
+     * @param string $host
+     * @return array
+     */
+    protected function getPathsByHost(string $host)
+    {
+        $paths = $this->container['config']->get('cors.paths', []);
+        // If where are paths by given host
+        if (isset($paths[$host])) {
+            return $paths[$host];
+        }
+        // Defaults
+        return array_filter($paths, function ($path) {
+            return is_string($path);
+        });
     }
 }

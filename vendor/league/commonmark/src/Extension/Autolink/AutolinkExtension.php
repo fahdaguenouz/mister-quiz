@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the league/commonmark package.
  *
@@ -11,15 +13,27 @@
 
 namespace League\CommonMark\Extension\Autolink;
 
-use League\CommonMark\ConfigurableEnvironmentInterface;
-use League\CommonMark\Event\DocumentParsedEvent;
-use League\CommonMark\Extension\ExtensionInterface;
+use League\CommonMark\Environment\EnvironmentBuilderInterface;
+use League\CommonMark\Extension\ConfigurableExtensionInterface;
+use League\Config\ConfigurationBuilderInterface;
+use Nette\Schema\Expect;
 
-final class AutolinkExtension implements ExtensionInterface
+final class AutolinkExtension implements ConfigurableExtensionInterface
 {
-    public function register(ConfigurableEnvironmentInterface $environment)
+    public function configureSchema(ConfigurationBuilderInterface $builder): void
     {
-        $environment->addEventListener(DocumentParsedEvent::class, new EmailAutolinkProcessor());
-        $environment->addEventListener(DocumentParsedEvent::class, new UrlAutolinkProcessor());
+        $builder->addSchema('autolink', Expect::structure([
+            'allowed_protocols' => Expect::listOf('string')->default(['http', 'https', 'ftp'])->mergeDefaults(false),
+            'default_protocol' => Expect::string()->default('http'),
+        ]));
+    }
+
+    public function register(EnvironmentBuilderInterface $environment): void
+    {
+        $environment->addInlineParser(new EmailAutolinkParser());
+        $environment->addInlineParser(new UrlAutolinkParser(
+            $environment->getConfiguration()->get('autolink.allowed_protocols'),
+            $environment->getConfiguration()->get('autolink.default_protocol'),
+        ));
     }
 }
