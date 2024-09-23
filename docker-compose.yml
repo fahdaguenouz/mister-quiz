@@ -9,6 +9,8 @@ services:
     container_name: mister_quiz-app  # Change the container name to match your project
     volumes:
       - ./:/var/www/mister_quiz  # Bind mount your app directory
+      - ./storage:/var/www/mister_quiz/storage  # Mount the storage directory
+      - ./bootstrap/cache:/var/www/mister_quiz/bootstrap/cache  # Bind mount your app directory
     networks:
       - mister_quiz-network
     environment:
