@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\Questions\QuestionController;
+use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,3 +33,5 @@ Route::get('/register', [RegisterController::class, 'index'])->name('register');
 Route::post('/register', [RegisterController::class, 'store']);
 
 Route::get('/logout', [LogoutController::class, 'logout'])->name('logout');
+
+Route::get('/quiz', [QuizController::class, 'index'])->name('quiz');
