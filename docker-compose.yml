@@ -16,7 +16,7 @@ services:
       - DB_PORT=3306
       - DB_DATABASE=mister_quiz
       - DB_USERNAME=appuser
-      - DB_PASSWORD=root  # Match the credentials from the MySQL container
+      - DB_PASSWORD=userpass
 
   # The Nginx web server service
   web:
@@ -37,10 +37,10 @@ services:
     image: mysql:5.7  # You can update this to another MySQL version if needed
     container_name: mister_quiz-mysql  # Custom container name
     environment:
-    MYSQL_ROOT_PASSWORD: root  # Set the root password
-    MYSQL_DATABASE: mister_quiz  # Name of the database
-    MYSQL_USER: appuser  # Create a regular user
-    MYSQL_PASSWORD: userpass  # Password for the DB user
+      MYSQL_ROOT_PASSWORD: userpass   # Set the root password
+      MYSQL_DATABASE: mister_quiz  # Name of the database
+      MYSQL_USER: appuser  # Create a regular user
+      MYSQL_PASSWORD: userpass  # Password for the DB user
     volumes:
       - dbdata:/var/lib/mysql  # Persist the database data
     networks:
@@ -48,10 +48,17 @@ services:
     ports:
       - "3307:3306"  # Expose MySQL to the host, in case you want to access it directly
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-puserpass"]
       interval: 10s
       timeout: 5s
       retries: 3
+  composer:
+    image: composer:latest
+    container_name: mister_quiz-composer
+    volumes:
+      - ./:/app  # Mount your app directory
+    networks:
+      - mister_quiz-network
 
 # Define the network
 networks:

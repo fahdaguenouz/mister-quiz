@@ -22,11 +22,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy project files to container
 COPY . .
 
-# Set folder permissions for Laravel directories
-RUN chown -R www-data:www-data /var/www/mister_quiz/storage /var/www/mister_quiz/bootstrap/cache
 
 # Install Composer dependencies
+
+
 RUN composer install --no-dev --optimize-autoloader
+
+RUN chown -R www-data:www-data /var/www/mister_quiz/storage /var/www/mister_quiz/bootstrap/cache
+
 
 # Expose the PHP-FPM port
 EXPOSE 9000
