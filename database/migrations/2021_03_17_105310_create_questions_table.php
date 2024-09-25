@@ -15,9 +15,9 @@ class CreateQuestionsTable extends Migration
     {
         Schema::create('question', function (Blueprint $table) {
             $table->id();
-            $table->string('question');
-            $table->integer('xp');
-            $table->string('category');
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->text('text');
+            $table->integer('xp_value');
             $table->timestamps();
         });
     }

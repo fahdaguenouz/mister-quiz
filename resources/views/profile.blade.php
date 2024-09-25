@@ -2,20 +2,19 @@
 
 @section('content')
 
-<a class="top-right-corner red-btn" href="{{ route('home') }}">Back ></a>
+<a class="absolute top-4 right-4 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-200" href="{{ route('home') }}">
+    Back &gt;
+</a>
 
-<div style="margin-top:100px">
-    <div class="profile-header">
-        <p class="title profile-name">{{ auth()->user()->username }}</p>
-        <p class="title profile-email">{{ auth()->user()->email }}</p>
+<div class="flex flex-col items-center justify-center mt-24">
+    <div class="w-full max-w-lg bg-white shadow-md rounded-lg p-6 mb-6">
+        <p class="text-4xl font-bold text-center mb-4">{{ auth()->user()->username }}</p>
+        <p class="text-lg text-gray-600 text-center">{{ auth()->user()->email }}</p>
     </div>
 
-    <div class="profile-header">
-        <p class="title profile-xp">{{ auth()->user()->xp }} XP</p>
-
+    <div class="w-full max-w-lg bg-white shadow-md rounded-lg p-6">
+        <p class="text-2xl font-bold text-center">{{ auth()->user()->xp }} XP</p>
     </div>
 </div>
-
-
 
 @endsection

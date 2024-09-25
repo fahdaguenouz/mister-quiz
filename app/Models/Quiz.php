@@ -9,20 +9,14 @@ class Quiz extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['completed', 'user_id', 'score'];
-
-    public function questions()
+    protected $fillable = ['user_id', 'total_questions', 'correct_answers'];
+    public function user()
     {
-        return $this->belongsToMany(Question::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function getQuestions()
+    public function quizDetails()
     {
-        $questions_quiz = Question_Quiz::where('quizzes_id', $this->id)->get()->toArray();
-        $result = [];
-        foreach ($questions_quiz as $q) {
-            array_push($result, Question::where('id', $q['question_id'])->first());
-        }
-        return $result;
+        return $this->hasMany(QuizDetail::class);
     }
 }

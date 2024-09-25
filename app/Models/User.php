@@ -20,8 +20,16 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'xp',
+        'rank'
     ];
 
+    public function leaderboard()
+{
+    $topPlayers = User::orderBy('xp', 'desc')->take(10)->get();
+
+    return view('leaderboard', ['players' => $topPlayers]);
+}
     /**
      * The attributes that should be hidden for arrays.
      *

@@ -1,0 +1,33 @@
+{
+    "name": "@types/imagemin",
+    "version": "9.0.0",
+    "description": "TypeScript definitions for imagemin",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/imagemin",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Romain Faust",
+            "githubUsername": "romain-faust",
+            "url": "https://github.com/romain-faust"
+        },
+        {
+            "name": "Jeff Chan",
+            "githubUsername": "hkjeffchan",
+            "url": "https://github.com/hkjeffchan"
+        }
+    ],
+    "type": "module",
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/imagemin"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/node": "*"
+    },
+    "typesPublisherContentHash": "5f2928eb671df2130d57d1bace976eedf6af4a7fde9269d0132f33b3fa36b569",
+    "typeScriptVersion": "4.7"
+}

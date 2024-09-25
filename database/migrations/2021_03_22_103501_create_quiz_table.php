@@ -16,10 +16,10 @@ class CreateQuizTable extends Migration
         Schema::dropIfExists('quizzes');
         Schema::create('quizzes', function (Blueprint $table) {
             $table->id();
-            $table->boolean('completed');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->timestamps();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->integer('total_questions');
+        $table->integer('correct_answers');
+        $table->timestamps();
         });
     }
 
