@@ -16,26 +16,29 @@ class RegisterController extends Controller
     }
 
     public function store(Request $request)
-    {
-        //validate
-        $this->validate($request, [
-            'username' => 'required|max:255',
-            'email' => 'required|email|max:255',
-            'password' => 'required|confirmed'
-        ]);
+{
+    // Validate the request
+    $this->validate($request, [
+        'username' => 'required|max:255|unique:users',  // Ensure username is unique
+        'email' => 'required|email|max:255|unique:users',  // Ensure email is unique
+        'password' => 'required|string|min:8|confirmed',  // Password must match confirmation
+    ]);
 
-        //store user
-        User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
-        ]);
+    // Create and store the user with default values
+    $user = User::create([
+        'username' => $request->username,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),  // Hash the password
+        'xp' => 0,  // Starting XP
+        'rank' => 'Quiz Apprentice',  // Default rank for new users based on initial XP
+        'total_correct_answers' => 0,  // No correct answers at start
+        'total_questions_answered' => 0,  // No questions answered at start
+        'percentage_correct' => 0,  // No percentage data at start
+    ]);
 
-        //sign user in
-        $credentials = $request->only('email', 'password');
-        Auth::attempt($credentials);
+    // Automatically log in the user after registration
+    Auth::login($user);
 
-        //redirect
-        return redirect()->route('home');
-    }
+    return redirect()->route('profile');
+}
 }

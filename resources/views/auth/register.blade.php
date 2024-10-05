@@ -55,7 +55,7 @@
           <div class="relative mb-5">
             <input type="password" name="password" id="password" placeholder="Enter password" 
                    class="h-12 w-full border border-gray-300 rounded-lg px-4 focus:outline-none focus:ring focus:border-blue-500">
-            <i class='bx bx-hide eye-icon absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer'></i>
+            <i class='bx bx-hide eye-icon absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer'  onclick="togglePasswordVisibility('password', this)"></i>
             @error('password')
               <div class="text-red-500 text-sm mt-2">{{ $message }}</div>
             @enderror
@@ -87,6 +87,26 @@
   </section>
 
   <!-- JavaScript -->
+  <script>
+    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const passwordConfirmation = document.getElementById('password_confirmation').value;
+
+        if (password !== passwordConfirmation) {
+            e.preventDefault(); // Prevent form submission
+            alert('Password confirmation does not match the password. Please try again.'); // Alert message
+            return false; // Optional: return false to prevent form submission
+        }
+    });
+
+    function togglePasswordVisibility(passwordFieldId, icon) {
+        const passwordField = document.getElementById(passwordFieldId);
+        const isVisible = passwordField.type === 'text';
+        passwordField.type = isVisible ? 'password' : 'text';
+        icon.classList.toggle('bx-hide', isVisible);
+        icon.classList.toggle('bx-show', !isVisible);
+    }
+</script>
 </body>
 
 </html>

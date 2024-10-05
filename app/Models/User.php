@@ -23,7 +23,18 @@ class User extends Authenticatable
         'xp',
         'rank'
     ];
-
+    public function getRankAttribute()
+    {
+        if ($this->xp < 1500) {
+            return 'Quiz Apprentice';
+        } elseif ($this->xp >= 1500 && $this->xp < 5000) {
+            return 'Average Quizer';
+        } elseif ($this->xp >= 5000 && $this->xp < 10000) {
+            return 'Epic Quizer';
+        } else {
+            return 'Quiz Master';
+        }
+    }
     public function leaderboard()
 {
     $topPlayers = User::orderBy('xp', 'desc')->take(10)->get();
@@ -49,8 +60,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function quizes()
+    public function quizzes()
     {
         return $this->hasMany(Quiz::class);
+    }
+
+    public function categoryScores()
+    {
+        return $this->hasMany(CategoryScore::class);
     }
 }

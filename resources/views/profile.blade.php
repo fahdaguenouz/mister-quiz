@@ -2,19 +2,23 @@
 
 @section('content')
 
-<a class="absolute top-4 right-4 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-200" href="{{ route('home') }}">
-    Back &gt;
-</a>
+<div class="container mx-auto p-8">
+    <h1 class="text-2xl font-bold mb-4">Profile</h1>
 
-<div class="flex flex-col items-center justify-center mt-24">
-    <div class="w-full max-w-lg bg-white shadow-md rounded-lg p-6 mb-6">
-        <p class="text-4xl font-bold text-center mb-4">{{ auth()->user()->username }}</p>
-        <p class="text-lg text-gray-600 text-center">{{ auth()->user()->email }}</p>
-    </div>
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-2">{{ $user->username }}</h2>
+        <p><strong>Email:</strong> {{ $user->email }}</p>
+        <p><strong>XP:</strong> {{ $user->xp }}</p>
+        <p><strong>Rank:</strong> {{ $rank }}</p>
 
-    <div class="w-full max-w-lg bg-white shadow-md rounded-lg p-6">
-        <p class="text-2xl font-bold text-center">{{ auth()->user()->xp }} XP</p>
+        <h3 class="text-lg font-semibold mt-4">Quiz Stats</h3>
+        <p><strong>Correct Answers:</strong> {{ $user->total_correct_answers }}</p>
+        <p><strong>Total Questions Answered:</strong> {{ $user->total_questions_answered }}</p>
+        <p><strong>Percentage Correct:</strong> {{ $user->percentage_correct }}%</p>
+
+        <!-- Add more fields as needed -->
     </div>
 </div>
+
 
 @endsection
