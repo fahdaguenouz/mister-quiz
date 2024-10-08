@@ -73,5 +73,55 @@ class AnswerSeeder extends Seeder
         Answer::create(['question_id' => 10, 'answer_text' => 'Football', 'is_correct' => false]);
         Answer::create(['question_id' => 10, 'answer_text' => 'Baseball', 'is_correct' => false]);
         Answer::create(['question_id' => 10, 'answer_text' => 'Hockey', 'is_correct' => false]);
+
+        Answer::create([ 'question_id' => 11, 'answer_text' => 'Paris', 'is_correct' => true]);
+        Answer::create(['question_id' => 11, 'answer_text' => 'London', 'is_correct' => false]);
+        Answer::create(['question_id' => 11, 'answer_text' => 'Berlin', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 11, 'answer_text' => 'Madrid', 'is_correct' => false]);
+
+        Answer::create([ 'question_id' => 12, 'answer_text' => 'Pacific Ocean', 'is_correct' => true]);
+        Answer::create(['question_id' => 12, 'answer_text' => 'Atlantic Ocean', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 12, 'answer_text' => 'Indian Ocean', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 12, 'answer_text' => 'Arctic Ocean', 'is_correct' => false]);
+
+        Answer::create([ 'question_id' => 13, 'answer_text' => '100°C', 'is_correct' => true]);
+        Answer::create(['question_id' => 13, 'answer_text' => '90°C', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 13, 'answer_text' => '80°C', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 13, 'answer_text' => '110°C', 'is_correct' => false]);
+
+        Answer::create([ 'question_id' => 14, 'answer_text' => 'Harper Lee', 'is_correct' => true]);
+        Answer::create(['question_id' => 14, 'answer_text' => 'J.K. Rowling', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 14, 'answer_text' => 'Ernest Hemingway', 'is_correct' => false]);
+        Answer::create(['question_id' => 14, 'answer_text' => 'F. Scott Fitzgerald', 'is_correct' => false]);
+
+        Answer::create(['question_id' => 15, 'answer_text' => 'Au', 'is_correct' => true]);
+        Answer::create(['question_id' => 15, 'answer_text' => 'Ag', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 15, 'answer_text' => 'Fe', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 15, 'answer_text' => 'Pb', 'is_correct' => false]);
+
+        Answer::create([ 'question_id' => 16, 'answer_text' => 'Mars', 'is_correct' => true]);
+        Answer::create(['question_id' => 16, 'answer_text' => 'Venus', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 16, 'answer_text' => 'Jupiter', 'is_correct' => false]);
+        Answer::create(['question_id' => 16, 'answer_text' => 'Saturn', 'is_correct' => false]);
+
+        Answer::create([ 'question_id' => 17, 'answer_text' => 'Basketball', 'is_correct' => true]);
+        Answer::create([ 'question_id' => 17, 'answer_text' => 'Football', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 17, 'answer_text' => 'Baseball', 'is_correct' => false]);
+        Answer::create(['question_id' => 17, 'answer_text' => 'Hockey', 'is_correct' => false]);
+
+        Answer::create(['question_id' => 18, 'answer_text' => 'Diamond', 'is_correct' => true]);
+        Answer::create([ 'question_id' => 18, 'answer_text' => 'Graphite', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 18, 'answer_text' => 'Quartz', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 18, 'answer_text' => 'Emerald', 'is_correct' => false]);
+
+        Answer::create(['question_id' => 19, 'answer_text' => 'Mount Everest', 'is_correct' => true]);
+        Answer::create(['question_id' => 19, 'answer_text' => 'K2', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 19, 'answer_text' => 'Kangchenjunga', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 19, 'answer_text' => 'Lhotse', 'is_correct' => false]);
+
+        Answer::create([ 'question_id' => 20, 'answer_text' => 'J.K. Rowling', 'is_correct' => true]);
+        Answer::create([ 'question_id' => 20, 'answer_text' => 'Stephen King', 'is_correct' => false]);
+        Answer::create([ 'question_id' => 20, 'answer_text' => 'George R.R. Martin', 'is_correct' => false]);
+        Answer::create(['question_id' => 20, 'answer_text' => 'Agatha Christie', 'is_correct' => false]);
     }
 }
