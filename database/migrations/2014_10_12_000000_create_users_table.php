@@ -13,6 +13,7 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
+        Schema::dropIfExists('users');
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('username')->unique();
@@ -22,7 +23,6 @@ class CreateUsersTable extends Migration
             $table->enum('rank', ['Quiz Apprentice', 'Average Quizer', 'Epic Quizer', 'Quiz Master'])->default('Quiz Apprentice');
             $table->rememberToken();
             $table->timestamps();
-           
         });
     }
 

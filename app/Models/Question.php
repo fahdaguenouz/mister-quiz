@@ -20,7 +20,8 @@ class Question extends Model
         return $this->belongsToMany(Quiz::class);
     }
     public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
+{
+    return $this->belongsTo(Category::class);
+}
+    
 }

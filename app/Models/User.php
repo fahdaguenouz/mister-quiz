@@ -69,4 +69,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(CategoryScore::class);
     }
+    public function getTotalQuestionsAnsweredAttribute()
+    {
+        return $this->quizzes()->sum('total_questions');
+    }
+
+    public function getTotalCorrectAnswersAttribute()
+    {
+        return $this->quizzes()->sum('correct_answers');
+    }
+
+    public function getPercentageCorrectAttribute()
+    {
+        $totalQuestions = $this->total_questions_answered;
+        $totalCorrect = $this->total_correct_answers;
+
+        return $totalQuestions > 0 ? round(($totalCorrect / $totalQuestions) * 100, 2) : 0;
+    }
 }

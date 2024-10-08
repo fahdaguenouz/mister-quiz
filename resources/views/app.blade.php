@@ -14,6 +14,7 @@
     
     <!-- Custom CSS (if needed) -->
     <link type="text/css" rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <nav class="bg-gray-800 p-4">

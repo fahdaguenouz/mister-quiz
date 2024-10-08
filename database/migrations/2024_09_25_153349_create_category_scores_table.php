@@ -13,6 +13,7 @@ class CreateCategoryScoresTable extends Migration
      */
     public function up()
     {
+        Schema::dropIfExists('category_scores');
         Schema::create('category_scores', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');

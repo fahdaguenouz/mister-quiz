@@ -17,8 +17,9 @@ class CreateQuizTable extends Migration
         Schema::create('quizzes', function (Blueprint $table) {
             $table->id();
         $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->integer('total_questions');
-        $table->integer('correct_answers');
+        $table->integer('total_questions')->default(0); // Total questions in the quiz
+        $table->integer('correct_answers')->default(0); // Correctly answered questions
+        $table->integer('xp_awarded')->default(0);
         $table->timestamps();
         });
     }

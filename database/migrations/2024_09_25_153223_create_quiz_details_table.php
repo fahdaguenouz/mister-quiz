@@ -13,6 +13,7 @@ class CreateQuizDetailsTable extends Migration
      */
     public function up()
     {
+        Schema::dropIfExists('quiz_details');
         Schema::create('quiz_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('quiz_id')->constrained()->onDelete('cascade');

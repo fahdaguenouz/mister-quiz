@@ -41,4 +41,11 @@ class ProfileController extends Controller
             'rank' => $rank
         ]);
     }
+    public function showProfile()
+{
+    $user = auth()->user();
+    $rank = $user->rank; // Assuming rank is computed dynamically in the User model
+
+    return view('profile', compact('user', 'rank'));
+}
 }

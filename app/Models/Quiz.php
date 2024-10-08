@@ -9,7 +9,7 @@ class Quiz extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'total_questions', 'correct_answers'];
+    protected $fillable = ['user_id', 'total_questions', 'correct_answers','xp_awarded'];
     public function user()
     {
         return $this->belongsTo(User::class);

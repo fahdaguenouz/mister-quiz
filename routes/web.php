@@ -26,6 +26,8 @@ Route::middleware(['web'])->group(function () {
     // Apply the auth middleware here
     Route::middleware(['auth'])->group(function () {
         Route::get('/quiz', [QuizController::class, 'index'])->name('quiz');
+        Route::post('/quiz/submit', [QuizController::class, 'submit'])->name('quiz.submit');
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+        Route::get('/quiz/results', [QuizController::class, 'results'])->name('quiz.results');
     });
 });
