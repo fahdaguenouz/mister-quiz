@@ -16,6 +16,12 @@
     @endif
 
     <!-- Display validation errors -->
+    @if (session('error'))
+        <div class="bg-red-500 text-white p-4 rounded mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
     @if ($errors->any())
         <div class="bg-red-500 text-white p-4 rounded mb-4">
             <ul>
@@ -26,24 +32,28 @@
         </div>
     @endif
 
-    <!-- Quiz form goes here -->
+    <!-- Quiz form -->
     <form action="{{ route('quiz.submit') }}" method="POST">
         @csrf
-        @foreach ($questions as $question)
-            <div class="mb-4">
-                <p class="font-bold">{{ $question->text }}</p>
-                <span class="badge bg-primary">{{ $question->category->name }}</span>
-                @foreach ($question->answers as $answer)
-                    <div>
-                        <input type="checkbox" 
-                               name="questions[{{ $question->id }}][]" 
-                               value="{{ $answer->id }}"
-                               {{ in_array($answer->id, old("questions.$question->id", [])) ? 'checked' : '' }}>
-                        <label>{{ $answer->answer_text }}</label>
-                    </div>
-                @endforeach
-            </div>
-        @endforeach
+        @if (count($questions) > 0)
+            @foreach ($questions as $question)
+                <div class="mb-4">
+                    <p class="font-bold">{{ $question->text }}</p>
+                    <span class="badge bg-primary">{{ $question->category->name }}</span>
+                    @foreach ($question->answers as $answer)
+                        <div>
+                            <input type="radio" 
+                                   name="questions[{{ $question->id }}]" 
+                                   value="{{ $answer->id }}"
+                                   {{ old("questions.$question->id") == $answer->id ? 'checked' : '' }} required>
+                            <label>{{ $answer->answer_text }}</label>
+                        </div>
+                    @endforeach
+                </div>
+            @endforeach
+        @else
+            <p>No questions available for this quiz.</p>
+        @endif
 
         <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Submit Quiz</button>
     </form>

@@ -4,7 +4,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LeaderboardController;
-use App\Http\Controllers\Questions\QuestionController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,9 +25,10 @@ Route::middleware(['web'])->group(function () {
     
     // Apply the auth middleware here
     Route::middleware(['auth'])->group(function () {
-        Route::get('/quiz', [QuizController::class, 'index'])->name('quiz');
+        // Route::get('/quiz', [QuizController::class, 'index'])->name('quiz');
         Route::post('/quiz/submit', [QuizController::class, 'submit'])->name('quiz.submit');
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
         Route::get('/quiz/results', [QuizController::class, 'results'])->name('quiz.results');
+        Route::get('/quiz', [QuestionController::class, 'index'])->name('quiz');
     });
 });

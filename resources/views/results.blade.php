@@ -22,25 +22,20 @@
         @foreach (session('questions_data') as $questionId => $data)
             <div class="mb-4 p-4 border rounded">
                 <p class="font-bold">{{ $data['question'] }}</p>
-                <p>Your answers:</p>
+
+                <p>Your answer:</p>
                 @php
-                    // Determine if the user's answer is correct
+                    // Get the user's selected answer
+                    $selectedAnswer = $data['answers']->firstWhere('id', $data['user_answer']);
                     $isAnswerCorrect = $data['is_correct'];
                 @endphp
 
-                @foreach ($data['user_answers'] as $answerId)
-                    @php
-                        // Get the user's answer text
-                        $selectedAnswer = $data['answers']->firstWhere('id', $answerId);
-                    @endphp
-
-                    <span class="block {{ $isAnswerCorrect ? 'text-green-600' : 'text-red-600' }}">
-                        {{ $selectedAnswer->answer_text }} - {{ $isAnswerCorrect ? '✔️ Correct' : '❌ Incorrect' }}
-                    </span>
-                @endforeach
+                <span class="block {{ $isAnswerCorrect ? 'text-green-600' : 'text-red-600' }}">
+                    {{ $selectedAnswer->answer_text }} - {{ $isAnswerCorrect ? '✔️ Correct' : '❌ Incorrect' }}
+                </span>
 
                 @if (!$isAnswerCorrect)
-                    <p>Correct answers:</p>
+                    <p>Correct answer(s):</p>
                     @foreach ($data['correct_answers'] as $correctAnswerId)
                         @php
                             // Get the correct answer text
