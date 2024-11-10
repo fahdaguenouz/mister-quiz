@@ -15,7 +15,13 @@ class QuestionSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('questions')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // Step 1: Truncate the answers table first
+        DB::table('answers')->truncate();   // This will delete all rows in the answers table
+        
+        // Step 2: Now truncate the questions table
+        DB::table('questions')->truncate(); 
         Question::create([
             'category_id' => 1, // Art
             'text' => 'Who painted the Mona Lisa?',
@@ -144,5 +150,6 @@ class QuestionSeeder extends Seeder
             'text' => 'What is the name of the author of the Harry Potter series?',
             'xp_value' => 1320,
         ]);
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }
