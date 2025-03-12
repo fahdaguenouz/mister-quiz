@@ -20,27 +20,8 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
-        'xp',
-        'rank'
     ];
-    public function getRankAttribute()
-    {
-        if ($this->xp < 1500) {
-            return 'Quiz Apprentice';
-        } elseif ($this->xp >= 1500 && $this->xp < 5000) {
-            return 'Average Quizer';
-        } elseif ($this->xp >= 5000 && $this->xp < 10000) {
-            return 'Epic Quizer';
-        } else {
-            return 'Quiz Master';
-        }
-    }
-    public function leaderboard()
-{
-    $topPlayers = User::orderBy('xp', 'desc')->take(10)->get();
 
-    return view('leaderboard', ['players' => $topPlayers]);
-}
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -60,30 +41,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function quizzes()
+    public function quizes()
     {
         return $this->hasMany(Quiz::class);
-    }
-
-    public function categoryScores()
-    {
-        return $this->hasMany(CategoryScore::class);
-    }
-    public function getTotalQuestionsAnsweredAttribute()
-    {
-        return $this->quizzes()->sum('total_questions');
-    }
-
-    public function getTotalCorrectAnswersAttribute()
-    {
-        return $this->quizzes()->sum('correct_answers');
-    }
-
-    public function getPercentageCorrectAttribute()
-    {
-        $totalQuestions = $this->total_questions_answered;
-        $totalCorrect = $this->total_correct_answers;
-
-        return $totalQuestions > 0 ? round(($totalCorrect / $totalQuestions) * 100, 2) : 0;
     }
 }

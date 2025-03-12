@@ -5,7 +5,7 @@
 
     <div class="checkboxes-wrapper" class="center">
         @foreach ($question->answers as $answer)
-            
+
         @endforeach
     </div>
 

@@ -1,15 +1,27 @@
 @extends('app')
 
 @section('content')
-<div class="flex flex-col items-center justify-center min-h-screen">
-    <div class="main-img mb-8">
-        <img src="{{ asset('images/mister_quiz.png') }}" alt="Mister Quiz" class="w-64 h-auto">
-    </div>
 
-    <p class="text-4xl font-bold mb-8">Mister Quiz</p>
+@auth
+<a class="top-left-corner blue-btn" href="{{ route('profile') }}">{{ auth()->user()->username }}</a>
+@endauth
 
-    <a class="bg-green-500 text-white py-3 px-8 rounded-lg hover:bg-green-600 transition duration-200" href="{{ route('quiz') }}">
-        Start Quiz
-    </a>
+@guest
+<a class="top-left-corner blue-btn" href="{{ route('login') }}">Login</a>
+
+@endguest
+
+<a class="top-right-corner blue-btn" href="">Leaderboard</a>
+
+@auth
+<a class="bottom-right-corner red-btn" href="{{ route('logout') }}">Logout</a>
+@endauth
+
+<div class="main-img">
+    <img src="{{ asset('images/mister_quiz.png') }}" alt="">
+    <p class="title">Mister Quiz</p>
+
+    <a style="margin-bottom:20px" class="green-btn center" href="">Start Quiz</a>
 </div>
+
 @endsection

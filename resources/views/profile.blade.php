@@ -2,22 +2,20 @@
 
 @section('content')
 
-<div class="container mx-auto p-8">
-    <h1 class="text-2xl font-bold mb-4">Profile</h1>
+<a class="top-right-corner red-btn" href="{{ route('home') }}">Back ></a>
 
-    <div class="bg-white shadow-md rounded-lg p-6">
-        <h2 class="text-xl font-semibold mb-2">{{ $user->username }}</h2>
-        <p><strong>Email:</strong> {{ $user->email }}</p>
-        <p><strong>XP:</strong> {{ $user->xp }}</p>
-        <p><strong>Rank:</strong> {{ $rank }}</p>
+<div style="margin-top:100px">
+    <div class="profile-header">
+        <p class="title profile-name">{{ auth()->user()->username }}</p>
+        <p class="title profile-email">{{ auth()->user()->email }}</p>
+    </div>
 
-        <h3 class="text-lg font-semibold mt-4">Quiz Stats</h3>
-        <p><strong>Correct Answers:</strong> {{ $user->total_correct_answers }}</p>
-        <p><strong>Total Questions Answered:</strong> {{ $user->total_questions_answered }}</p>
-        <p><strong>Percentage Correct:</strong> {{ $user->percentage_correct }}%</p>
+    <div class="profile-header">
+        <p class="title profile-xp">{{ auth()->user()->xp }} XP</p>
 
-        <!-- Add more fields as needed -->
     </div>
 </div>
+
+
 
 @endsection
