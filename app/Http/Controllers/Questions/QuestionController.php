@@ -14,68 +14,106 @@ class QuestionController extends Controller
     public function index(Request $request)
     {
         if ($request->user()) {
-            $categories = ['History', 'Art', 'Geography', 'Science', 'Sports'];
-            $questions = [];
+            if (!session()->has('quiz_questions')) {
+                $categories = ['History', 'Art', 'Geography', 'Science', 'Sports'];
+                $questions = [];
 
-            //getting 4 random questions from each category
-            foreach ($categories as $cat) {
-                $query_questions = Question::inRandomOrder()->where('category', $cat)->limit(4)->get();
-                foreach ($query_questions as $qq) {
-                    array_push($questions, $qq);
+                foreach ($categories as $cat) {
+                    $query_questions = Question::where('category', $cat)
+                        ->inRandomOrder()
+                        ->limit(4)
+                        ->with('answers')
+                        ->get();
+
+                    foreach ($query_questions as $qq) {
+                        $questions[] = [
+                            'id' => $qq->id,
+                            'question' => $qq->question,
+                            'xp' => $qq->xp,
+                            'category' => $qq->category,
+                            'answers' => $qq->answers->map(function ($answer) {
+                                return [
+                                    'id' => $answer->id,
+                                    'answer' => $answer->answer,
+                                ];
+                            })->toArray(),
+                        ];
+                    }
                 }
+
+                shuffle($questions);
+
+                session(['quiz_questions' => $questions]);
+            } else {
+                $questions = session('quiz_questions');
             }
 
-            shuffle($questions);
-        } else {
+            $quiz = ['questions' => $questions];
+
+            return view('questions.list', compact('quiz'));
         }
 
-        return view('questions.list');
+        return redirect()->route('login');
     }
-
 
 
 
     public function results(Request $request)
     {
-        //get quiz from DB
-        $quiz = Quiz::where('id', $request->quiz)->get()->first();
-        $request = $request->all();
-        //makes quiz completed
-        $quiz['completed'] = 1;
+        $quizQuestions = session('quiz_questions', []);
 
-        $results = array('overall' => 0, 'art' => 0, 'geography' => 0, 'history' => 0, 'science' => 0, 'sports' => 0);
+        if (empty($quizQuestions)) {
+            return redirect()->route('quiz')->with('error', 'No active quiz found.');
+        }
+
+       
+        session()->forget('quiz_questions');
+
+        $results = [
+            'overall' => 0,
+            'art' => 0,
+            'geography' => 0,
+            'history' => 0,
+            'science' => 0,
+            'sports' => 0
+        ];
         $xp = 0;
+        $counter  = 0;
+        $user = Auth::user();
 
-        //figuring out which answers are correct
-        foreach ($request as $key => $value) {
-            if (is_numeric($key)) {
-                $correct_answer = Answer::where('question_id', $key)->where('correct', 1)->get()->first()['answer'];
-                if ($correct_answer == $value) {
-                    $question = Question::where('id', $key)->get()->first();
+        foreach ($quizQuestions as $question) {
+            $questionId = $question['id'];
+            $category = strtolower($question['category']); // Ensure lowercase to match array keys
+
+            if ($request->has("answer_$questionId")) {
+                $selectedAnswerId = $request->input("answer_$questionId");
+
+                $correctAnswer = Answer::where('question_id', $questionId)
+                    ->where('correct', 1)
+                    ->first();
+                $counter += 1;
+                if ($correctAnswer && $correctAnswer->id == $selectedAnswerId) {
                     $results['overall']++;
+                    $results[$category]++;
+                    $xp += $question['xp'];
                 }
             }
         }
 
-        //adding xp to the 
-        Auth::user()['xp'] += $xp;
-
-        //adding categories score to the user
-        foreach ($results as $key => $value) {
-            if ($key != 'overall') {
-                [$correct, $total] = [explode("/", Auth::user()[$key])[0], explode("/", Auth::user()[$key])[1]];
-                Auth::user()[$key] = ($correct + $value) . "/" . ($total + 4);
-            }
+        if ($counter !== 20) {
+            return redirect()->route('quiz')->with('error', 'You need to answer all questions');
         }
 
-        //adding xp to the user
-        Auth::user()['xp'] += $xp;
+        $user->xp += $xp;
 
-        //save changes in DB
-        Auth::user()->save();
-        $quiz->save();
+        foreach ($results as $category => $correctAnswers) {
+            if ($category !== 'overall') {
+                [$correct, $total] = explode("/", $user[$category] ?? "0/0");
+                $user[$category] = ($correct + $correctAnswers) . "/" . ($total + 4);
+            }
+        }
+        $user->save();
 
-
-        return view('questions.results', ['results' => $results]);
+        return view('questions.results', ['results' => $results, 'xp' => $xp]);
     }
 }
