@@ -66,6 +66,7 @@
             {{ session('error') }}
         </div>
     @endif
+    
 
     <form action="{{ route('quiz.submit') }}" method="post" class="quiz-form">
         @csrf
