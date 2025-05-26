@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+    container_name: laravel-app
+    volumes:
+      - .:/var/www
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: mister_quiz
+      DB_USERNAME: root
+      DB_PASSWORD: root
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: mister_quiz
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./questions_and_answers.sql:/docker-entrypoint-initdb.d/questions_and_answers.sql
+
+volumes:
+  dbdata:
