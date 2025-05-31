@@ -1,15 +1,15 @@
 FROM php:8.2-cli
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
+    zip \
     libzip-dev \
     libonig-dev \
     libxml2-dev \
-    zip \
-    default-mysql-client
+    default-mysql-client \
+    bash
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring zip

@@ -23,6 +23,28 @@ sudo ./xampp-linux-x64-8.2.12-0-installer.run
 sudo /opt/lampp/lampp start
 
 
+dockerd-rootless-setuptool.sh install --skip-iptables
+
+curl -fsSL https://get.docker.com/rootless | sh
+export PATH=$HOME/bin:$PATH
+export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
+
+# Then:
+dockerd-rootless-setuptool.sh install --skip-iptables
+
+
+
+mkdir -p ~/.config/docker
+nano ~/.config/docker/daemon.json
+{
+  "dns": ["8.8.8.8", "1.1.1.1"]
+}
+systemctl --user restart docker
+
+
+
+docker-compose up --build
+
 
 to enter the bash :
 docker exec -it mysql-db bash
