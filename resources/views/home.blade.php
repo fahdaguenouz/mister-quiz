@@ -102,7 +102,7 @@
 
 <div class="main-img">
     <h1 class="title">Mister Quiz</h1>
-    <img src="{{ asset('images/logo.png') }}" alt="Quiz Logo">
+
 
     @auth
         <a class="btn" style="margin-bottom:20px" href="{{ route('quiz') }}">Start Quiz <i class="fas fa-play"></i></a>

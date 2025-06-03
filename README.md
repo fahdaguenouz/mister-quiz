@@ -57,3 +57,8 @@ for laravel in other terminal :
  docker-compose up -d
  docker exec -it laravel-app bash
  composer install
+
+
+
+ dockerd-rootless.sh &
+ export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
