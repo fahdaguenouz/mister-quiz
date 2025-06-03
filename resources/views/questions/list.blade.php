@@ -256,6 +256,37 @@
         position: relative;
         z-index: 10;
     }
+    .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--neon-blue);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    margin-left: 3rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Space Grotesk', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.8rem 1.5rem;
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.back-link:hover {
+    transform: translateX(-5px) translateY(-3px);
+    background: rgba(0, 212, 255, 0.1);
+    border-color: var(--neon-blue);
+    box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(0, 212, 255, 0.3);
+    text-decoration: none;
+    color: var(--neon-blue);
+}
 
     .btn {
         align-self: center;
@@ -357,6 +388,7 @@
         }
     }
 </style>
+<a href="{{ route('home') }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
 
 <div class="quiz-container">
     <h1 class="quiz-title">Take the Quiz</h1>
