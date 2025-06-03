@@ -49,7 +49,9 @@ docker-compose up --build
 to enter the bash :
 docker exec -it mysql-db bash
 to run the seeder :
-mysql -u root -p mister_quiz < /questions_and_answers.sql
+mysql -u root -proot mister_quiz
+mysql -u root -proot mister_quiz < /docker-entrypoint-initdb.d/questions_and_answers.sql
+
 
 for laravel in other terminal :
  docker-compose up -d
