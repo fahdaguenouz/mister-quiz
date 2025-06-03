@@ -20,11 +20,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy the Laravel app into the container
-COPY . .
+# Copy only necessary files for Composer install
+COPY composer.json composer.lock ./
 
 # Install PHP dependencies with Composer
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Copy the rest of the Laravel app into the container
+COPY . .
 
 # Set permissions (optional)
 RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www

@@ -7,13 +7,12 @@ services:
     container_name: laravel-app
     volumes:
       - .:/var/www
+      - /var/www/vendor  # Prevent overwriting the vendor directory
     depends_on:
       - db
     ports:
       - "8000:8000"
     command: php artisan serve --host=0.0.0.0 --port=8000
-
-
     environment:
       DB_HOST: db
       DB_PORT: 3306
