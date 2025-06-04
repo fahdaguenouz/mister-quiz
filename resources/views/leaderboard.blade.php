@@ -688,26 +688,26 @@
     }
 </style>
 
-<nav>
-    <a class="btn" href="{{ route('home') }}"><i class="fas fa-home"></i> Home</a>
+    <nav>
+        <a class="btn" href="{{ route('home') }}"><i class="fas fa-home"></i> Home</a>
 
-    <div style="display: flex; gap: 30px">
-        @auth
-            <a class="btn" href="{{ route('profile') }}"><i class="fas fa-user"></i> {{ auth()->user()->username }}</a>
-        @endauth
+        <div style="display: flex; gap: 30px">
+            @auth
+                <a class="btn" href="{{ route('profile') }}"><i class="fas fa-user"></i> {{ auth()->user()->username }}</a>
+            @endauth
 
-        @guest
-            <a class="btn" href="{{ route('login') }}"><i class="fas fa-right-to-bracket"></i> Login</a>
-        @endguest
+            @guest
+                <a class="btn" href="{{ route('login') }}"><i class="fas fa-right-to-bracket"></i> Login</a>
+            @endguest
 
-        @auth
-            <form action="{{ route('logout') }}" method="post">
-                @csrf
-                <button type="submit" class="btn"><i class="fas fa-right-from-bracket"></i> Logout</button>
-            </form>
-        @endauth
-    </div>
-</nav>
+            @auth
+                <form action="{{ route('logout') }}" method="post">
+                    @csrf
+                    <button type="submit" class="btn"><i class="fas fa-right-from-bracket"></i> Logout</button>
+                </form>
+            @endauth
+        </div>
+    </nav>
 
 <div class="leaderboard-container">
     <h1 class="leaderboard-title"><i class="fas fa-trophy"></i> Leaderboard</h1>

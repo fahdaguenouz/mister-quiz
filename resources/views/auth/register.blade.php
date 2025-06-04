@@ -252,7 +252,18 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
-
+    .password-toggle{
+                position: absolute;
+                right: 1.5rem;
+                top: 50%;
+                transform: translateY(-50%);
+                background: transparent;
+                border: none;
+                color: rgba(255, 255, 255, 0.5);
+                cursor: pointer;
+                font-size: 1.2rem;
+                transition: color 0.3s ease;
+            }
         .input-icon {
             position: absolute;
             left: 1.25rem;
@@ -485,6 +496,7 @@
 
         <div class="input-group">
             <input class="auth-input" type="password" name="password" id="password" placeholder="Create a password">
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility()"><i class="fa-solid fa-eye"></i></button>
             @error('password')
                 <div class="error-msg">
                     {{ $message }}
@@ -494,6 +506,8 @@
 
         <div class="input-group">
             <input class="auth-input" type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm your password">
+            <button type="button" class="password-toggle password-toggle2" onclick="togglePasswordVisibility2()"><i class="fa-solid fa-eye"></i></button>
+
             @error('password_confirmation')
                 <div class="error-msg">
                     {{ $message }}
@@ -501,8 +515,9 @@
             @enderror
         </div>
 
+
         <button class="auth-btn" type="submit">Create Account</button>
-        
+
         @if (session('status'))
             <div class="success-msg">
                 {{ session('status') }}
@@ -512,5 +527,34 @@
         <a class="auth-link" href="{{ route('login') }}">Already have an account? Sign in</a>
     </form>
 </div>
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleButton = document.querySelector('.password-toggle i');
 
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.classList.remove('fa-eye');
+            toggleButton.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.classList.remove('fa-eye-slash');
+            toggleButton.classList.add('fa-eye');
+        }
+    }
+    function togglePasswordVisibility2() {
+        const passwordInput = document.getElementById('password_confirmation');
+        const toggleButton = document.querySelector('.password-toggle2 i');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.classList.remove('fa-eye');
+            toggleButton.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.classList.remove('fa-eye-slash');
+            toggleButton.classList.add('fa-eye');
+        }
+    }
+</script>
 @endsection

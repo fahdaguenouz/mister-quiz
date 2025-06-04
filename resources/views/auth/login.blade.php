@@ -321,6 +321,18 @@
                 0 8px 25px rgba(139, 92, 246, 0.15);
             transform: translateY(-2px);
         }
+        .password-toggle{
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
 
         .input-icon {
             position: absolute;
@@ -637,6 +649,7 @@
 
         <div class="input-group">
             <input class="auth-input" type="password" name="password" id="password" placeholder="Enter your password">
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility()"><i class="fa-solid fa-eye"></i></button>
             @error('password')
                 <div class="error-msg">
                     {{ $message }}
@@ -655,5 +668,20 @@
         <a class="auth-link" href="{{ route('register') }}">Don't have an account? Create one</a>
     </form>
 </div>
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleButton = document.querySelector('.password-toggle i');
 
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleButton.classList.remove('fa-eye');
+            toggleButton.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleButton.classList.remove('fa-eye-slash');
+            toggleButton.classList.add('fa-eye');
+        }
+    }
+</script>
 @endsection

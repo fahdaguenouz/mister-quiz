@@ -87,7 +87,91 @@
             opacity: 0.4;
         }
     }
+ nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 3rem;
+        background: var(--glass);
+        backdrop-filter: blur(30px);
+        border-bottom: 1px solid var(--glass-border);
+        position: relative;
+        z-index: 100;
+    }
 
+    nav::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, 
+            transparent, 
+            var(--neon-blue), 
+            var(--neon-purple), 
+            var(--neon-pink), 
+            transparent
+        );
+        animation: navGlow 3s linear infinite;
+    }
+
+    @keyframes navGlow {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .btn-nav {
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        background: var(--glass);
+        color: var(--text-primary);
+        border: 1px solid var(--glass-border);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: 'Space Grotesk', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-nav::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.2), 
+            transparent
+        );
+        transition: left 0.6s ease;
+    }
+
+    .btn-nav:hover::before {
+        left: 100%;
+    }
+
+    .btn-nav:hover {
+        background: rgba(0, 212, 255, 0.1);
+        border-color: var(--neon-blue);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 
+            0 15px 40px rgba(0, 0, 0, 0.4),
+            0 0 30px rgba(0, 212, 255, 0.3);
+        color: var(--text-primary);
+        text-decoration: none;
+    }
     .quiz-results-container {
         max-width: 1000px;
         margin: 3rem auto;
@@ -517,7 +601,24 @@
         }
     }
 </style>
+<nav>
+    <a class="btn-nav" href="{{ route('home') }}"><i class="fas fa-home"></i> Home</a>
 
+    <div style="display: flex; gap: 30px">
+        <a class="btn-nav" href="{{ route('leaderboard') }}"><i class="fas fa-trophy"></i> Leaderboard</a>
+
+        @auth
+            <a class="btn-nav" href="{{ route('profile') }}"><i class="fas fa-user"></i> {{ auth()->user()->username }}</a>
+        @endauth
+
+        @auth
+            <form action="{{ route('logout') }}" method="post">
+                @csrf
+                <button type="submit" class="btn-nav"><i class="fas fa-right-from-bracket"></i> Logout</button>
+            </form>
+        @endauth
+    </div>
+</nav>
 <div class="quiz-results-container">
 
     <div class="result-header">
