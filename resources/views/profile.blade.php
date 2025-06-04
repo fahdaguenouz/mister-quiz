@@ -565,7 +565,6 @@ nav::before {
 }
 
 .stats-table tbody tr:hover::before {
-    content: '';
     position: absolute;
     top: 0;
     left: -100%;

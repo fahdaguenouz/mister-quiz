@@ -354,60 +354,14 @@
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
-        animation: rowAppear 0.6s ease forwards;
-        opacity: 0;
-        transform: translateX(-50px);
-    }
-
-    @keyframes rowAppear {
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    .leaderboard-table tbody tr:nth-child(1) {
-        animation-delay: 0.1s;
-    }
-    .leaderboard-table tbody tr:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-    .leaderboard-table tbody tr:nth-child(3) {
-        animation-delay: 0.3s;
-    }
-    .leaderboard-table tbody tr:nth-child(4) {
-        animation-delay: 0.4s;
-    }
-    .leaderboard-table tbody tr:nth-child(5) {
-        animation-delay: 0.5s;
     }
 
     .leaderboard-table tbody tr:hover {
         background: rgba(0, 212, 255, 0.1);
         border-color: var(--neon-blue);
-        transform: translateY(-8px) scale(1.02);
         box-shadow: 
             0 20px 50px rgba(0, 0, 0, 0.5),
             0 0 50px rgba(0, 212, 255, 0.3);
-    }
-
-    .leaderboard-table tbody tr:hover::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, 
-            transparent, 
-            rgba(255, 255, 255, 0.1), 
-            transparent
-        );
-        animation: rowShimmer 0.8s ease;
-    }
-
-    @keyframes rowShimmer {
-        to { left: 100%; }
     }
 
     .leaderboard-table td {
